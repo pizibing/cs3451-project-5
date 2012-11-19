@@ -2,10 +2,11 @@
 //**      3D viewer with camera control and surface picking          **
 //**              Jarek Rossignac, October 2010                      **   
 //**                    (using PVectors)  
-//** Raymond Garrison  
+//** 
 //*********************************************************************
 /**
  * Robert Kernan
+ * Raymond Garrison  
  */
 
 import processing.opengl.*;                // load OpenGL libraries and utilities
