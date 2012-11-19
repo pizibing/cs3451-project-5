@@ -3,6 +3,10 @@
 //**              Jarek Rossignac, October 2010                      **   
 //**                    (using PVectors)                             **   
 //*********************************************************************
+/**
+ * Robert Kernan
+ */
+
 import processing.opengl.*;                // load OpenGL libraries and utilities
 import javax.media.opengl.*; 
 import javax.media.opengl.glu.*; 
