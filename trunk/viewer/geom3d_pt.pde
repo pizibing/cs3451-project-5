@@ -38,6 +38,16 @@ class Point {
   }
   
   /**
+   * copy constructor
+   * @param other point to copy
+   */
+  Point(Point other) {
+    this.x = other.x;
+    this.y = other.y;
+    this.z = other.z;
+  }
+  
+  /**
    * set point to given coordinates
    * @param x x-coordinate
    * @param y y-coordinate
