@@ -38,6 +38,16 @@ class Vector {
   }
   
   /**
+   * copy constructor
+   * @param other vector to copy
+   */
+  Vector(Vector other) {
+    this.x = other.x;
+    this.y = other.y;
+    this.z = other.z;
+  }
+  
+  /**
    * constructor
    * create vector between points A and B
    * @param A start point
