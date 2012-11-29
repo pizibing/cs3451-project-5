@@ -2,19 +2,31 @@
  * 2d frame defining a 3d shape that is symetric around an axis
  */
 class ShapeFrame {
+  int num_sides;
   Point[] frame;
   int frame_size;
   CornerTable corner_table;
   Point[][] outline;
+  Vector scale;
  
   /**
    * constructor
    */
-  ShapeFrame() {
+  ShapeFrame(int num_sides) {
+    this.num_sides = num_sides;
     this.frame = new Point[5];
     this.frame_size = 0;
     this.corner_table = new CornerTable();
     this.outline = new Point[0][0];
+    this.scale = new Vector();
+  }
+  
+  /**
+   * scale the shape
+   * @param V scale amount
+   */
+  void scaleBy(Vector V) {
+    this.scale.add(V);
   }
   
   /**
@@ -81,7 +93,22 @@ class ShapeFrame {
    * @return closest point
    */
   Point getClosestVertex(Point A) {
-    return this.frame[this._getClosestIndex(A)];
+    int ind = this._getClosestIndex(A);
+    if (ind < 0) {
+      return null;
+    }
+    return this.frame[ind];
+  }
+  
+  /**
+   * remove given index
+   */
+  void _deleteIndex(int index) {
+    for (int i = index + 1; i < frame_size; i++) {
+      this.frame[i - 1] = this.frame[i];
+    }
+    // remove point
+    this.frame_size--;
   }
   
   /**
@@ -94,25 +121,34 @@ class ShapeFrame {
     // find closest
     int closest = this._getClosestIndex(A);
     // shift points
-    for (int i = closest + 1; i < frame_size; i++) {
-      this.frame[i - 1] = this.frame[i];
+    this._deleteIndex(closest);
+  }
+  
+  /**
+   * make the shape convex
+   */
+  void makeConvex() {
+    if (this.frame_size < 3) {
+      return;
     }
-    // remove point
-    this.frame_size--;
+    for (int i = 0; i < frame_size; i++) {
+      println(i + ": <" + frame[i].x + "," + frame[i].y + "," + frame[i].z + ">");
+    }
+    // check forward
+    
   }
   
   /**
    * create a triangle mesh for the shape
-   * @param resolution number of sides in final mesh
    */
-  void createOutlineAndMesh(int resolution) {
+  void createOutlineAndMesh() {
     if (this.frame_size < 3) {
       return;
     }
     // build outline
-    this.outline = new Point[resolution][this.frame_size];
+    this.outline = new Point[num_sides][this.frame_size];
     // fill in top and bottom
-    for (int i = 0; i < resolution; i++) {
+    for (int i = 0; i < num_sides; i++) {
       this.outline[i][0] = new Point(this.frame[0]);
       this.outline[i][this.frame_size - 1] = new Point(this.frame[this.frame_size - 1]);
     }
@@ -126,10 +162,10 @@ class ShapeFrame {
       disp[i] = new Vector(this.frame[0], this.frame[i + 1]);
     }
     // rotate displacements
-    float angle = (2 * PI) / resolution;
+    float angle = (2.0 * PI) / num_sides;
     Vector I = new Vector(1, 0, 0);
     Vector J = new Vector(0, 0, 1);
-    for (int i = 0; i < resolution; i++) {
+    for (int i = 0; i < num_sides; i++) {
       for (int j = 0; j < disp.length; j++) {
         disp[j].rotate(angle, I, J);
         this.outline[i][j+1] = add(this.outline[i][0], disp[j]);
@@ -138,39 +174,29 @@ class ShapeFrame {
     // build mesh from outline
     this.corner_table.initTables();
     for (int i = 0; i < this.outline.length; i++) {
-      int in = (i + 1) % this.outline.length;
+      int j = 0;
+      int n = (i + 1) % this.outline.length;
       // start triangle
-      Point A = this.outline[i][1];
-      Point B = this.outline[i][0];
-      Point C = this.outline[in][1];
-      int ai = this.corner_table.addVertex(A);
-      int bi = this.corner_table.addVertex(B);
-      int ci = this.corner_table.addVertex(C);
-      this.corner_table.addTriangle(ai, bi, ci);
-      // end triangle
-      int l = this.outline[i].length - 1;
-      A = this.outline[i][l-1];
-      B = this.outline[in][l-1];
-      C = this.outline[in][l];
-      ai = this.corner_table.addVertex(A);
-      bi = this.corner_table.addVertex(B);
-      ci = this.corner_table.addVertex(C);
-      this.corner_table.addTriangle(ai, bi, ci);
-      // quads
-      Point D = null;
-      int di = -1;
-      for (int j = 1; j < this.outline[i].length - 2; j++) {
-        A = this.outline[i][j];
-        B = this.outline[in][j];
-        C = this.outline[in][j+1];
-        D = this.outline[i][j+1];
-        ai = this.corner_table.addVertex(A);
-        bi = this.corner_table.addVertex(B);
-        ci = this.corner_table.addVertex(C);
-        di = this.corner_table.addVertex(D);
-        this.corner_table.addTriangle(ai, bi, ci);
-        this.corner_table.addTriangle(ai, ci, di);
+      int a = this.corner_table.addVertex(this.outline[i][j]);
+      int b = this.corner_table.addVertex(this.outline[i][j+1]);
+      int c = this.corner_table.addVertex(this.outline[n][j+1]);
+      this.corner_table.addTriangle(a, b, c);
+      // middle triangles
+      for (j = 1; j < this.outline[i].length - 2; j++) {
+        a = this.corner_table.addVertex(this.outline[n][j]);
+        b = this.corner_table.addVertex(this.outline[i][j]);
+        c = this.corner_table.addVertex(this.outline[i][j+1]);
+        this.corner_table.addTriangle(a, b, c);
+        a = this.corner_table.addVertex(this.outline[n][j]);
+        b = this.corner_table.addVertex(this.outline[i][j+1]);
+        c = this.corner_table.addVertex(this.outline[n][j+1]);
+        this.corner_table.addTriangle(a, b, c);
       }
+      // end triangle
+      a = this.corner_table.addVertex(this.outline[n][j]);
+      b = this.corner_table.addVertex(this.outline[i][j]);
+      c = this.corner_table.addVertex(this.outline[i][j+1]);
+      this.corner_table.addTriangle(a, b, c);
     }
   }
   
@@ -204,14 +230,14 @@ class ShapeFrame {
       }
       endShape(CLOSE);
     }
-    for (int i = 0; i < this.outline[0].length; i++) {
+    /*for (int i = 0; i < this.outline[0].length; i++) {
       beginShape(LINES);
       for (int j = 0; j < this.outline.length - 1; j++) {
         vertex(outline[j][i].x, outline[j][i].y, outline[j][i].z);
         vertex(outline[j+1][i].x, outline[j+1][i].y, outline[j+1][i].z);
       }
       endShape(CLOSE);
-    }
+    }*/
   }
   
   /**
@@ -219,5 +245,13 @@ class ShapeFrame {
    */
   void drawMesh(boolean smooth) {
     this.corner_table.drawTriangles(smooth);
+  }
+  
+  /**
+   * draw mesh normals
+   */
+  void drawNormals() {
+    this.corner_table.drawVertexNormals();
+    this.corner_table.drawTriangleNormals();
   }
 }

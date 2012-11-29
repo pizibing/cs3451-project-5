@@ -26,14 +26,16 @@ boolean show_help = false;
 boolean smooth_shading = false;
 // display mode
 boolean show_mesh = false;
+boolean show_tnorm = false;
+boolean show_vnorm = false;
 // edit mode
 boolean mode_edit = false;
 Point selected = null;
 // shapes
 int curr_shape = 0;
-int NUM_SHAPES = 4;
-int MESH_RESOLUTION = 6;
-ShapeFrame[] shapes = new ShapeFrame[NUM_SHAPES];
+int num_shapes = 4;
+int num_sides = 6;
+ShapeFrame[] shapes = new ShapeFrame[num_shapes];
 
 void initView() {
   vQ = new Point(0, 0, 0);
@@ -60,8 +62,8 @@ void setup() {
   // init view
   initView();
   // init
-  for (int i = 0; i < NUM_SHAPES; i++) {
-    shapes[i] = new ShapeFrame();
+  for (int i = 0; i < num_shapes; i++) {
+    shapes[i] = new ShapeFrame(num_sides);
   }
 }
 
@@ -76,20 +78,23 @@ void draw() {
   int footer_line = 0;
   scribeFooter("press '?' to toggle help", footer_line++);
   scribeFooter("display: " + ((show_mesh) ? "SOLID" : "PROFILE") + ", " +
-               "shading: " + ((smooth_shading) ? "SMOOTH" : "FLAT") + ", " +
-               "num edges: " + MESH_RESOLUTION, footer_line++);
+               "shading: " + ((smooth_shading) ? "SMOOTH" : "FLAT"), footer_line++);
+  scribeFooter("current shape: " + curr_shape + ", num sides = " + shapes[curr_shape].num_sides, footer_line++);
   if (show_help) {
     scribe("VIEW", header_line++);
     scribe("  drag:  mousedrag", header_line++);
     scribe("  zoom:  'd' + mousedrag", header_line++);
     scribe("  mesh:  'm' (toggle)", header_line++);
     scribe("  shade: 'g' (toggle)", header_line++);
+    scribe("  vnorm: 'v' (toggle)", header_line++);
+    scribe("  tnorm: 't' (toggle)", header_line++);
     scribe("EDIT SHAPE (toggle with 'e')", header_line++);
     scribe("  change shape: '1'-'4'", header_line++);
     scribe("  add: 'i' + mouseclick", header_line++);
     scribe("  del: 'd' + mouseclick", header_line++);
     scribe("  sel: mouseclick", header_line++);
     scribe("  mov: sel + mousedrag", header_line++);
+    scribe("  make convex: 'C'", header_line++);
   }
   else {
     scribe("CS3451-A Fall 2012 - Project 5", header_line++);
@@ -132,7 +137,7 @@ void draw() {
   // draw mesh
   if (show_mesh) {
     fill(cyan);
-    stroke(blue);
+    stroke(black);
     shapes[curr_shape].drawMesh(smooth_shading);
     noFill();
     noStroke();
@@ -140,6 +145,16 @@ void draw() {
   else {
     stroke(black);
     shapes[curr_shape].drawOutline();
+    noStroke();
+  }
+  if (show_tnorm) {
+    stroke(orange);
+    shapes[curr_shape].corner_table.drawTriangleNormals();
+    noStroke();
+  }
+  if (show_vnorm) {
+    stroke(orange);
+    shapes[curr_shape].corner_table.drawVertexNormals();
     noStroke();
   }
 }
@@ -151,13 +166,13 @@ void mousePressed() {
       if (key == 'i') {
         shapes[curr_shape].addVertex(getMouse());
         shapes[curr_shape].alignEdge();
-        shapes[curr_shape].createOutlineAndMesh(MESH_RESOLUTION);
+        shapes[curr_shape].createOutlineAndMesh();
       }
       // remove point
       if (key == 'd') {
         shapes[curr_shape].deleteClosestVertex(getMouse());
         shapes[curr_shape].alignEdge();
-        shapes[curr_shape].createOutlineAndMesh(MESH_RESOLUTION);
+        shapes[curr_shape].createOutlineAndMesh();
       }
     }
     // select point
@@ -169,11 +184,19 @@ void mousePressed() {
 
 void mouseDragged() {
   if (mode_edit) {
+    // scale the shape
+    if (keyPressed && key == 'C') {
+      float xscale = mouseX - pmouseX;
+      float yscale = mouseY - pmouseY;
+      shapes[curr_shape].scaleBy(new Vector(((xscale >= 0) ? xscale : 0), ((yscale >= 0) ? yscale : 0), 0));
+      shapes[curr_shape].alignEdge();
+      shapes[curr_shape].createOutlineAndMesh();
+    }
     // move selected point
-    if (selected != null) {
+    else if (selected != null) {
       selected.add(getMouseDrag());
       shapes[curr_shape].alignEdge();
-      shapes[curr_shape].createOutlineAndMesh(MESH_RESOLUTION);
+      shapes[curr_shape].createOutlineAndMesh();
     }
   }
 }
@@ -208,23 +231,51 @@ void keyReleased() {
   if (key == '?') {
     show_help = !show_help;
   }
+  // toggle triangle normals
+  if (key == 't') {
+    show_tnorm = !show_tnorm;
+  }
+  // toggle vertex normals
+  if (key == 'v') {
+    show_vnorm = !show_vnorm;
+  }
+  // make convex
+  if (key == 'C') {
+    shapes[curr_shape].makeConvex();
+  }
   // write shapes
   if (key == 'W') {
-    
+    String filename = "data/start.pts";
+    try {
+      saveScene(filename);
+      println("saved scene from file: " + filename);
+    }
+    catch (IOException ioe) {
+      println(ioe);
+      println("ERROR: couldn't save to file: " + filename);
+    }
   }
   // load shapes
   if (key == 'L') {
-    
+    String filename = "data/start.pts";
+    try {
+      loadScene(filename);
+      println("loaded scene from file: " + filename);
+    }
+    catch (IOException ioe) {
+      println(ioe.toString());
+      println("ERROR: couldn't load from file: " + filename);
+    }
   }
 }
 
 void keyPressed() {
   if (key == ',') {
-    MESH_RESOLUTION = (MESH_RESOLUTION - 1 < 3) ? 3 : MESH_RESOLUTION - 1;
-    shapes[curr_shape].createOutlineAndMesh(MESH_RESOLUTION);
+    shapes[curr_shape].num_sides = (shapes[curr_shape].num_sides - 1 < 3) ? 3 : shapes[curr_shape].num_sides - 1;
+    shapes[curr_shape].createOutlineAndMesh();
   }
   if (key == '.') {
-    MESH_RESOLUTION++;
-    shapes[curr_shape].createOutlineAndMesh(MESH_RESOLUTION);
+    shapes[curr_shape].num_sides++;
+    shapes[curr_shape].createOutlineAndMesh();
   }
 }
