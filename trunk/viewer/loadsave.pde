@@ -88,6 +88,7 @@ void load(Vector V, BufferedReader in) throws IOException {
  */
 void load(ShapeFrame shape_frame, BufferedReader in) throws IOException {
   int num_sides = (new Integer(in.readLine())).intValue();
+  shape_frame.num_sides = num_sides;
   int frame_size = (new Integer(in.readLine())).intValue();
   if (frame_size < 1) {
     return;

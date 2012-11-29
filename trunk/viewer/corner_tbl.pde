@@ -176,21 +176,34 @@ class CornerTable {
     this.V[a_i+1] = b;
     this.V[a_i+2] = c;
     // build opposite table
-    // TODO
+    this.fillOppositeTable();
     // centroid
-    int t_i = num_triangles;
+    int t_i = num_triangles++;
     C[t_i] = div(add(add(G[a], G[b]), G[c]), 3);
     // triangle normal
-    Vector N1 = new Vector(G[a], G[b]);
-    Vector N2 = new Vector(G[a], G[c]);
-    Nt[t_i] = cross(N1, N2).mult(-1);
-    Nt[t_i].normalize();
+    Nt[t_i] = cross(new Vector(G[a], G[b]), new Vector(G[a], G[c])).normalize();
+    //Nt[t_i].normalize();
     // calculate normals
-    //calcTriangleNormals();
     calcVertexNormals();
     // return triangle index
-    num_triangles++;
     return a_i;
+  }
+  
+  /**
+   * fill opposite table
+   */
+  void fillOppositeTable() {
+    for (int i = 0; i < 3 * num_triangles; i++) {
+      O[i] = i;
+    }
+    for (int i = 0; i < num_corners; i++) {
+      for (int j = i + 1; j < num_corners; j++) { 
+        if ((vert(next(i)) == vert(prev(j))) && (vert(prev(i)) == vert(next(j)))) {
+          O[i] = j;
+          O[j] = i;
+        }
+      }
+    }
   }
   
   /**
@@ -287,6 +300,7 @@ class CornerTable {
       vertex(this.C[i].x, this.C[i].y, this.C[i].z);
       vertex(result.x, result.y, result.z);
       endShape();
+      show(C[i], 10);
     }
   }
 }
