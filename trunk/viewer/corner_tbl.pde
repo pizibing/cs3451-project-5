@@ -4,7 +4,7 @@
 class CornerTable {
   // geometry
   Point[] G;
-  // triangles
+  // corners
   int[] V;
   // opposites
   int[] O;
@@ -117,6 +117,12 @@ class CornerTable {
    * @return index of the new vertex
    */
   int addVertex(Point P) {
+    // check if already exists
+    for (int i = 0; i < this.num_vertices; i++) {
+      if (P.equals(G[i])) {
+        return i;
+      }
+    }
     // resize
     if (this.num_vertices >= this.G.length) {
       Point[] temp1 = new Point[this.G.length * 2];
@@ -164,26 +170,26 @@ class CornerTable {
       this.C = temp2;
     }
     // add triangle
-    int a_i = this.num_corners++;
+    int a_i = num_corners;
+    num_corners += 3;
     this.V[a_i] = a;
-    this.O[a_i] = a;
-    int b_i = this.num_corners++;
-    this.V[b_i] = b;
-    this.O[b_i] = b;
-    int c_i = this.num_corners++;
-    this.V[c_i] = c;
-    this.O[c_i] = c;
+    this.V[a_i+1] = b;
+    this.V[a_i+2] = c;
     // build opposite table
-    // TODO 
+    // TODO
+    // centroid
+    int t_i = num_triangles;
+    C[t_i] = div(add(add(G[a], G[b]), G[c]), 3);
+    // triangle normal
+    Vector N1 = new Vector(G[a], G[b]);
+    Vector N2 = new Vector(G[a], G[c]);
+    Nt[t_i] = cross(N1, N2).mult(-1);
+    Nt[t_i].normalize();
     // calculate normals
-    Point P0 = new Point(G[V[a_i]]);
-    Point P1 = new Point(G[V[a_i+1]]);
-    Point P2 = new Point(G[V[a_i+2]]);
-    this.C[this.num_triangles++] = div(add(add(P0, P1), P2), 3);
-    //this.Nt[c_i] = new Vector();
-    calcTriangleNormals();
+    //calcTriangleNormals();
     calcVertexNormals();
     // return triangle index
+    num_triangles++;
     return a_i;
   }
   
@@ -197,12 +203,14 @@ class CornerTable {
     Vector V = new Vector();
     Vector U = new Vector();
     for (int i = 0; i < this.num_triangles; i++) {
-      P0 = this.G[this.V[i*3]];
-      P1 = this.G[this.V[i*3+1]];
-      P2 = this.G[this.V[i*3+2]];
-      V = new Vector(P0, P1);
-      U = new Vector(P0, P2);
-      Nt[i] = V.cross(U);
+      println("triangle " + i);
+      // centroid
+      C[i] = div(add(add(geom(3*i), geom(3*i+1)), geom(3*i+2)), 3);
+      // normal
+      V = new Vector(geom(3*i), geom(3*i+1));
+      U = new Vector(geom(3*i), geom(3*i+2));
+      Nt[i] = cross(V, U).mult(-1);
+      Nt[i].normalize();
     }
   }
   
@@ -217,6 +225,9 @@ class CornerTable {
     // calculate new normals
     for (int i = 0; i < this.num_corners; i++) {
       Nv[vert(i)].add(Nt[tri(i)]);
+    }
+    // normalize
+    for (int i = 0; i < this.num_corners; i++) {
       Nv[vert(i)].normalize();
     }
   }
@@ -271,7 +282,7 @@ class CornerTable {
   void drawTriangleNormals() {
     Point result = null;
     for (int i = 0; i < this.num_triangles; i++) {
-      result = add(this.C[i], this.Nt[i]);
+      result = add(this.C[i], mult(this.Nt[i], 50));
       beginShape(LINE);
       vertex(this.C[i].x, this.C[i].y, this.C[i].z);
       vertex(result.x, result.y, result.z);
@@ -279,3 +290,4 @@ class CornerTable {
     }
   }
 }
+

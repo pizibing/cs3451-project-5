@@ -70,6 +70,24 @@ class Point {
   }
   
   /**
+   * check if two points are equal
+   * @param other point to check equality with
+   * @return true: equal, else false
+   */
+  boolean equals(Point other) {
+    if (!(abs(this.x - other.x) < 0.0001)) {
+      return false;
+    }
+    else if (!(abs(this.y - other.y) < 0.0001)) {
+      return false;
+    }
+    else if (!(abs(this.z - other.z) < 0.0001)) {
+      return false;
+    }
+    return true;
+  }
+  
+  /**
    * add points
    * @param P point to add
    * @return this
