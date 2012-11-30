@@ -7,7 +7,7 @@ class ShapeFrame {
   int frame_size;
   CornerTable corner_table;
   Point[][] outline;
-  Vector scale;
+  Point origin;
  
   /**
    * constructor
@@ -18,15 +18,15 @@ class ShapeFrame {
     this.frame_size = 0;
     this.corner_table = new CornerTable();
     this.outline = new Point[0][0];
-    this.scale = new Vector();
+    this.origin = new Point();
   }
   
   /**
-   * scale the shape
-   * @param V scale amount
+   * move shape position
+   * @param V displacement
    */
-  void scaleBy(Vector V) {
-    this.scale.add(V);
+  void moveBy(Vector V) {
+    this.origin.add(V);
   }
   
   /**
@@ -149,15 +149,14 @@ class ShapeFrame {
     this.outline = new Point[num_sides][this.frame_size];
     // fill in top and bottom
     for (int i = 0; i < num_sides; i++) {
-      this.outline[i][0] = new Point(this.frame[0]);
-      this.outline[i][this.frame_size - 1] = new Point(this.frame[this.frame_size - 1]);
+      this.outline[i][0] = (new Point(this.frame[0])).add(this.origin);
     }
     // fill in first
-    for (int i = 1; i < this.frame_size - 1; i++) {
+    for (int i = 1; i < this.frame_size; i++) {
       this.outline[0][i] = this.frame[i];
     }
     // calc displacements
-    Vector[] disp = new Vector[this.frame_size - 2];
+    Vector[] disp = new Vector[this.frame_size - 1];
     for (int i = 0; i < disp.length; i++) {
       disp[i] = new Vector(this.frame[0], this.frame[i + 1]);
     }
