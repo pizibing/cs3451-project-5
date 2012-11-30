@@ -135,7 +135,7 @@ class Vector {
    * @return dot product
    */
   float dot(Vector V) {
-    return this.x * V.x + this.y * V.y + this.z * V.z;
+    return (this.x * V.x) + (this.y * V.y) + (this.z * V.z);
   }
   
   /**
@@ -181,18 +181,16 @@ class Vector {
    * @return this
    */
   Vector rotate(float a, Vector I, Vector J) {
-    float c = cos(a);
-    float s = sin(a);
     float x = this.dot(I);
     float y = this.dot(J);
-    float si = x * c - x - y * s;
-    float sj = x * s + y * c - y;
-    Vector Inew = I.copy();
-    Vector Jnew = J.copy();
-    Inew.mult(si);
-    Jnew.mult(sj);
-    this.add(Inew);
-    this.add(Jnew);
+    float c = cos(a);
+    float s = sin(a);
+    Vector I_new = new Vector(I);
+    Vector J_new = new Vector(J);
+    I_new.mult(x * c - x - y * s);
+    J_new.mult(x * s + y * c - y);
+    this.add(J_new);
+    this.add(I_new);
     return this;
   }
   
@@ -284,4 +282,11 @@ Vector cross(Vector U, Vector V) {
  */
 float norm(Vector V) {
   return V.norm();
+}
+
+/**
+ * determin if B is left of A
+ */
+boolean isLeft(Point A, Point B, Point C) {
+  return ((B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x)) > 0;
 }
