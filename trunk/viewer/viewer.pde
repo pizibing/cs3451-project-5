@@ -1,7 +1,7 @@
 /**
  * Robert Kernan
  * Qiqin Xie
- * Raymond Garrison  
+ * Raymond Garrison
  */
 
 import processing.opengl.*;
@@ -190,10 +190,21 @@ void mouseDragged() {
     if (keyPressed && key == 'C') {
       float xscale = mouseX - pmouseX;
       float yscale = mouseY - pmouseY;
-      shapes[curr_shape].scaleBy(new Vector(((xscale >= 0) ? xscale : 0), ((yscale >= 0) ? yscale : 0), 0));
+      //shapes[curr_shape].scaleBy(new Vector(((xscale >= 0) ? xscale : 0), ((yscale >= 0) ? yscale : 0), 0));
       shapes[curr_shape].alignEdge();
       shapes[curr_shape].createOutlineAndMesh();
     }
+    // move the shape
+    if (keyPressed && key == 'o') {
+      
+    }
+    // move the origin
+    if (keyPressed && key == 'p') {
+      shapes[curr_shape].moveBy(add(mult(vI, 0.5 * (mouseX - pmouseX)), mult(vJ, -0.5 * (mouseY - pmouseY))));
+      shapes[curr_shape].createOutlineAndMesh();
+    }
+    // move the origin
+    
     // move selected point
     else if (selected != null) {
       selected.add(getMouseDrag());
