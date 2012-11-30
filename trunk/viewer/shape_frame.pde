@@ -151,12 +151,30 @@ class ShapeFrame {
    * make the shape convex
    */
   void makeConvex() {
-    for (int j = 1; j < this.frame_size-1; j++){
-      if ( isLeft(this.frame[j-1], this.frame[j], this.frame[j+1])) {
-        this._deleteIndex(j);
+    boolean finished = false; 
+    while(finished == false){    
+      finished = true;
+      for(int k = 0; k < this.frame_size-1; k++){
+        if(this.frame[0].y < this.frame[k].y){
+         this.frame[0].y = this.frame[k].y;
+         finished = false;
+       }
+      }    
+      for(int l = 0; l < this.frame_size-1; l++){
+        if(this.frame[this.frame_size-1].y > this.frame[l].y){
+          this.frame[this.frame_size-1].y = this.frame[l].y;
+          finished = false;
+        }
       }
-    }
-    createOutlineAndMesh(); 
+      for (int j = 1; j < this.frame_size-1; j++){
+        if ( isLeft(this.frame[j-1], this.frame[j], this.frame[j+1])) {
+          this._deleteIndex(j);
+          j--;
+          finished = false;
+        }
+      }
+      createOutlineAndMesh();
+    }  
   }
   
   /**

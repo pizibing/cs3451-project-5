@@ -12,6 +12,9 @@ import java.nio.*;
 GL gl;
 GLU glu;
 
+// save file
+String filename = "data/start.pts";
+
 // view
 Vector vI;
 Vector vJ;
@@ -28,6 +31,11 @@ boolean smooth_shading = false;
 boolean show_mesh = false;
 boolean show_tnorm = false;
 boolean show_vnorm = false;
+// animate
+boolean animate = false;
+float curr_anim_time = 0;
+float frame_rate = 1.0 / 60.0;
+float max_anim_time = 1;
 // edit mode
 boolean mode_edit = false;
 Point selected = null;
@@ -67,10 +75,26 @@ void setup() {
     shapes[i] = new ShapeFrame(num_sides);
   }
   morph = new ShapeMorph(shapes[0].corner_table, shapes[1].corner_table);
-  shapes[curr_shape].rotateAxis(PI, vI, vJ);
+  shapes[curr_shape].rotateAxis(radians(90), vI, vJ);
+  try {
+    loadScene(filename);
+    println("loaded scene from file: " + filename);
+  }
+  catch (IOException ioe) {
+    println(ioe.toString());
+    println("ERROR: couldn't load from file: " + filename);
+  }
 }
 
 void draw() {
+  // check animation time
+  if (curr_anim_time > max_anim_time) {
+    curr_anim_time = 0;
+  }
+  else if (curr_anim_time < 0) {
+    curr_anim_time = 0;
+  }
+  // draw
   hint(DISABLE_DEPTH_TEST);
   background(white);
   // ui
@@ -82,21 +106,24 @@ void draw() {
   scribeFooter("press '?' to toggle help", footer_line++);
   scribeFooter("display: " + ((show_mesh) ? "SOLID" : "PROFILE") + ", " +
                "shading: " + ((smooth_shading) ? "SMOOTH" : "FLAT"), footer_line++);
-  scribeFooter("current shape: " + (curr_shape + 1), footer_line++);
+  scribeFooter("current shape: " + (curr_shape + 1) + ", animation: " + ((animate) ? "ON " : "OFF") + " (" + nf(curr_anim_time, 1, 2) + "s)", footer_line++);
   if (show_help) {
+    scribe("SAVE/LOAD (file:\"" + filename + "\")", header_line++);
+    scribe("  save scene: 'W'", header_line++);
+    scribe("  load scene: 'L'", header_line++);
     scribe("VIEW", header_line++);
-    scribe("  drag:  mousedrag", header_line++);
-    scribe("  zoom:  'd' + mousedrag", header_line++);
-    scribe("  mesh:  'm' (toggle)", header_line++);
-    scribe("  shade: 'g' (toggle)", header_line++);
-    scribe("  vnorm: 'v' (toggle)", header_line++);
-    scribe("  tnorm: 't' (toggle)", header_line++);
+    scribe("  rotate view:  mousedrag", header_line++);
+    scribe("  zoom view in/out:  'd' + mousedrag", header_line++);
+    scribe("  show mesh:  'm' (toggle)", header_line++);
+    scribe("  use smooth shading: 'g' (toggle)", header_line++);
+    scribe("  show vertex normals: 'v' (toggle)", header_line++);
+    scribe("  show triangle normals: 't' (toggle)", header_line++);
     scribe("EDIT SHAPE (toggle with 'e')", header_line++);
     scribe("  change shape: '1'-'4'", header_line++);
-    scribe("  add: 'i' + mouseclick", header_line++);
-    scribe("  del: 'd' + mouseclick", header_line++);
-    scribe("  sel: mouseclick", header_line++);
-    scribe("  mov: sel + mousedrag", header_line++);
+    scribe("  add control point: 'i' + mouseclick", header_line++);
+    scribe("  delete control point: 'd' + mouseclick", header_line++);
+    scribe("  selelect control point: mouseclick", header_line++);
+    scribe("  move selected point: select + mousedrag", header_line++);
     scribe("  make convex: 'C'", header_line++);
     scribe("  move the origin: 'p' + mousedrag", header_line++);
     scribe("  move the axis: 'o' + mousedrag", header_line++);
@@ -148,6 +175,10 @@ void draw() {
     stroke(orange);
     shapes[curr_shape].corner_table.drawVertexNormals();
     noStroke();
+  }
+  // update animation
+  if (animate) {
+    curr_anim_time += frame_rate;
   }
 }
 
@@ -203,6 +234,9 @@ void mouseDragged() {
       shapes[curr_shape].createOutlineAndMesh();
     }
   }
+  else if (!animate && keyPressed && key == 't') {
+    curr_anim_time += 0.001 * float(mouseX - pmouseX);
+  }
   // move view
   else {
     boolean moved = true;
@@ -247,6 +281,9 @@ void keyReleased() {
   if (key == 'e') {
     mode_edit = !mode_edit;
   }
+  if (key == ' ') {
+    animate = !animate;
+  }
   // toggle help dialog
   if (key == '?') {
     show_help = !show_help;
@@ -265,7 +302,6 @@ void keyReleased() {
   }
   // write shapes
   if (key == 'W') {
-    String filename = "data/start.pts";
     try {
       saveScene(filename);
       println("saved scene to file: " + filename);
@@ -277,7 +313,6 @@ void keyReleased() {
   }
   // load shapes
   if (key == 'L') {
-    String filename = "data/start.pts";
     try {
       loadScene(filename);
       println("loaded scene from file: " + filename);
