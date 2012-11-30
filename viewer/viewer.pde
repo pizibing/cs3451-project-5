@@ -67,6 +67,7 @@ void setup() {
     shapes[i] = new ShapeFrame(num_sides);
   }
   morph = new ShapeMorph(shapes[0].corner_table, shapes[1].corner_table);
+  shapes[curr_shape].rotateAxis(PI, vI, vJ);
 }
 
 void draw() {
@@ -81,7 +82,7 @@ void draw() {
   scribeFooter("press '?' to toggle help", footer_line++);
   scribeFooter("display: " + ((show_mesh) ? "SOLID" : "PROFILE") + ", " +
                "shading: " + ((smooth_shading) ? "SMOOTH" : "FLAT"), footer_line++);
-  scribeFooter("current shape: " + curr_shape + ", num sides = " + shapes[curr_shape].num_sides, footer_line++);
+  scribeFooter("current shape: " + (curr_shape + 1), footer_line++);
   if (show_help) {
     scribe("VIEW", header_line++);
     scribe("  drag:  mousedrag", header_line++);
@@ -90,9 +91,6 @@ void draw() {
     scribe("  shade: 'g' (toggle)", header_line++);
     scribe("  vnorm: 'v' (toggle)", header_line++);
     scribe("  tnorm: 't' (toggle)", header_line++);
-    scribe("  move the origin: 'p' + mousedrag", header_line++);
-    scribe("  move the axis: 'o' + mousedrag", header_line++);
-    scribe("  rotate the shape: 'l' + mousedrag", header_line++);
     scribe("EDIT SHAPE (toggle with 'e')", header_line++);
     scribe("  change shape: '1'-'4'", header_line++);
     scribe("  add: 'i' + mouseclick", header_line++);
@@ -100,6 +98,9 @@ void draw() {
     scribe("  sel: mouseclick", header_line++);
     scribe("  mov: sel + mousedrag", header_line++);
     scribe("  make convex: 'C'", header_line++);
+    scribe("  move the origin: 'p' + mousedrag", header_line++);
+    scribe("  move the axis: 'o' + mousedrag", header_line++);
+    scribe("  rotate the shape: 'l' + mousedrag", header_line++);
   }
   else {
     scribe("CS3451-A Fall 2012 - Project 5", header_line++);
@@ -111,24 +112,10 @@ void draw() {
     shapes[curr_shape].drawFrame();
     noStroke();
     fill(black);
-    scribeFooter("--EDIT SHAPE (" + (curr_shape + 1) + ")--", footer_line++);
+    scribeFooter("EDITING SHAPE " + (curr_shape + 1) + ", " + 
+                 "num sides = " + shapes[curr_shape].num_sides + ", " + 
+                 "axis = <" + shapes[curr_shape].axis.x + ", " + shapes[curr_shape].axis.y + ", " + shapes[curr_shape].axis.z + ">", footer_line++);
     noFill();
-  }
-  // move view
-  else {
-    boolean moved = true;
-    if (!keyPressed && mousePressed) {
-      vE = rotate(vE, PI * float(mouseX - pmouseX) / width, vI, vK, vF);
-      vE = rotate(vE, -PI * float(mouseY - pmouseY) / width, vJ, vK, vF);
-      moved = true;
-    }
-    if (keyPressed && key == 'd'&& mousePressed) {
-      vE.add(mult(vK, -float(mouseY - pmouseY)));
-      moved = true;
-    }
-    if (moved) {
-      setFrame(vQ, vI, vJ, vK);
-    }
   }
   // enable z-buffer
   hint(ENABLE_DEPTH_TEST);
@@ -189,30 +176,47 @@ void mousePressed() {
 
 void mouseDragged() {
   if (mode_edit) {
-    // scale the shape
+    // convert to convex
     if (keyPressed && key == 'C') {
-      float xscale = mouseX - pmouseX;
-      float yscale = mouseY - pmouseY;
-      //shapes[curr_shape].scaleBy(new Vector(((xscale >= 0) ? xscale : 0), ((yscale >= 0) ? yscale : 0), 0));
-      shapes[curr_shape].alignEdge();
-      shapes[curr_shape].createOutlineAndMesh();
-    }
-    // move the shape
-    if (keyPressed && key == 'o') {
-      
-    }
-    // move the origin
-    if (keyPressed && key == 'p') {
-      shapes[curr_shape].moveBy(add(mult(vI, 0.5 * (mouseX - pmouseX)), mult(vJ, -0.5 * (mouseY - pmouseY))));
+      // TODO
       shapes[curr_shape].createOutlineAndMesh();
     }
     // move the origin
-    
+    else if (keyPressed && key == 'p') {
+      shapes[curr_shape].moveBy(add(mult(vI, float(mouseX - pmouseX)), mult(vJ, -float(mouseY - pmouseY))));
+      shapes[curr_shape].createOutlineAndMesh();
+    }
+    // spin current shape
+    else if (keyPressed && key == 'l') {
+      shapes[curr_shape].spin(-0.1 * float(mouseX - pmouseX));
+      shapes[curr_shape].createOutlineAndMesh();
+    }
+    // rotate current shape axis
+    else if (keyPressed && key == 'o') {
+      shapes[curr_shape].rotateAxis(-0.1 * float(mouseX - pmouseX), vI, vJ);
+      shapes[curr_shape].createOutlineAndMesh();
+    }
     // move selected point
     else if (selected != null) {
       selected.add(getMouseDrag());
       shapes[curr_shape].alignEdge();
       shapes[curr_shape].createOutlineAndMesh();
+    }
+  }
+  // move view
+  else {
+    boolean moved = true;
+    if (!keyPressed && mousePressed) {
+      vE = rotate(vE, PI * float(mouseX - pmouseX) / width, vI, vK, vF);
+      vE = rotate(vE, -PI * float(mouseY - pmouseY) / width, vJ, vK, vF);
+      moved = true;
+    }
+    if (keyPressed && key == 'd'&& mousePressed) {
+      vE.add(mult(vK, -float(mouseY - pmouseY)));
+      moved = true;
+    }
+    if (moved) {
+      setFrame(vQ, vI, vJ, vK);
     }
   }
 }

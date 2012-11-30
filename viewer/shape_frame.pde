@@ -8,6 +8,8 @@ class ShapeFrame {
   CornerTable corner_table;
   Point[][] outline;
   Point origin;
+  float spin_angle;
+  Vector axis;
  
   /**
    * constructor
@@ -19,6 +21,8 @@ class ShapeFrame {
     this.corner_table = new CornerTable();
     this.outline = new Point[0][0];
     this.origin = new Point();
+    this.spin_angle = 0;
+    this.axis = new Vector(0, 1, 0);
   }
   
   /**
@@ -27,6 +31,25 @@ class ShapeFrame {
    */
   void moveBy(Vector V) {
     this.origin.add(V);
+  }
+  
+  /**
+   * rotate shape axis
+   * @param angle rotation angle
+   * @param I vector defining rotation plane
+   * @param J vector defining rotation plane
+   */
+  void rotateAxis(float angle, Vector I, Vector J) {
+    println("rot angle=" + angle);
+    this.axis.rotate(angle, I, J);
+  }
+  
+  /**
+   * spin shape
+   * @param angle spin angle
+   */
+  void spin(float angle) {
+    this.spin_angle += angle;
   }
   
   /**
@@ -128,14 +151,12 @@ class ShapeFrame {
    * make the shape convex
    */
   void makeConvex() {
-    if (this.frame_size < 3) {
-      return;
+    for (int j = 1; j < this.frame_size-1; j++){
+      if ( isLeft(this.frame[j-1], this.frame[j], this.frame[j+1])) {
+        this._deleteIndex(j);
+      }
     }
-    for (int i = 0; i < frame_size; i++) {
-      println(i + ": <" + frame[i].x + "," + frame[i].y + "," + frame[i].z + ">");
-    }
-    // check forward
-    
+    createOutlineAndMesh(); 
   }
   
   /**
@@ -156,18 +177,18 @@ class ShapeFrame {
       this.outline[0][i] = this.frame[i];
     }
     // calc displacements
+    Vector rI = new Vector(1, 0, 0);
+    Vector rK = new Vector(0, 0, 1);
     Vector[] disp = new Vector[this.frame_size - 1];
     for (int i = 0; i < disp.length; i++) {
-      disp[i] = new Vector(this.frame[0], this.frame[i + 1]);
+      disp[i] = (new Vector(this.frame[0], this.frame[i + 1])).rotate(this.spin_angle, rI, rK);
     }
     // rotate displacements
     float angle = (2.0 * PI) / num_sides;
-    Vector I = new Vector(1, 0, 0);
-    Vector J = new Vector(0, 0, 1);
     for (int i = 0; i < num_sides; i++) {
       for (int j = 0; j < disp.length; j++) {
-        disp[j].rotate(angle, I, J);
         this.outline[i][j+1] = add(this.outline[i][0], disp[j]);
+        disp[j].rotate(angle, rI, rK);
       }
     }
     // build mesh from outline
@@ -237,6 +258,11 @@ class ShapeFrame {
       }
       endShape(CLOSE);
     }*/
+    beginShape(LINES);
+    stroke(green);
+    vertex(this.frame[0].x, this.frame[0].y, this.frame[this.frame_size-1].z);
+    vertex(this.axis.x * 200.0, this.axis.y * 200.0, this.axis.z * 200.0);
+    endShape();
   }
   
   /**
