@@ -73,8 +73,33 @@ class ShapeMorph {
   void map_FacesToVerts() {
     for (int i = 0; i < A.num_triangles; i++) {
       for (int j = 0; j < B.num_corners; j++) {
-        // TODO check lsd
-        this.faces_to_verts[i][j] = true;
+        boolean flag = true;
+        Vector v;
+        for (Edge e: Edges_B){
+          if (e.A.equals(B.G[j])){
+             v = Vector(e.A, e.B);
+             if (v.dot(A.Nt[i])>0)){
+               flag = false;
+             }
+             else if (v.dot(A.Nt[i])==0){
+                if (norm(Vector(A.C[i],e.B)) < norm(Vector(A.C[i],e.A))){
+                    flag = false;
+                }
+             }
+          }
+          else if (e.B.equals(B.G[j])){
+             v = Vector(e.B, e.A);
+             if (v.dot(A.Nt[i])>0)){
+               flag = false;
+             }
+             else if (v.dot(A.Nt[i])==0){
+                if (norm(Vector(A.C[i],e.A)) < norm(Vector(A.C[i],e.B))){
+                    flag = false;
+                }
+             }
+          }
+        }
+        this.faces_to_verts[i][j] = flag;
       }
     }
   }
@@ -83,12 +108,37 @@ class ShapeMorph {
    * map all vertices in A to faces in B
    */
   void map_VertsToFaces() {
-     for (int i = 0; i < A.num_corners; i++) {
-       for (int j = 0; j < B.num_triangles; j++) {
-         // TODO check lsd
-         this.verts_to_faces[i][j] = true;
-       }
-     }
+    for (int i = 0; i < B.num_triangles; i++) {
+      for (int j = 0; j < A.num_corners; j++) {
+        boolean flag = true;
+        Vector v;
+        for (Edge e: Edges_A){
+          if (e.A.equals(A.G[j])){
+             v = Vector(e.A, e.B);
+             if (v.dot(B.Nt[i])>0)){
+               flag = false;
+             }
+             else if (v.dot(B.Nt[i])==0){
+                if (norm(Vector(B.C[i],e.B)) < norm(Vector(B.C[i],e.A))){
+                    flag = false;
+                }
+             }
+          }
+          else if (e.B.equals(A.G[j])){
+             v = Vector(e.B, e.A);
+             if (v.dot(B.Nt[i])>0)){
+               flag = false;
+             }
+             else if (v.dot(B.Nt[i])==0){
+                if (norm(Vector(B.C[i],e.A)) < norm(Vector(B.C[i],e.B))){
+                    flag = false;
+                }
+             }
+          }
+        }
+        this.verts_to_faces[j][i] = flag;
+      }
+    }
   }
   
   /**
