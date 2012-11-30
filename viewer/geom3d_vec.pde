@@ -144,9 +144,12 @@ class Vector {
    * @return this
    */
   Vector cross(Vector V) {
-    this.x = this.y * V.z - this.z * V.y;
-    this.y = this.z * V.x - this.x * V.z;
-    this.z = this.x * V.y - this.y * V.x;
+    float x_new = (this.y * V.z) - (this.z * V.y);
+    float y_new = (this.z * V.x) - (this.x * V.z);
+    float z_new = (this.x * V.y) - (this.y * V.x);
+    this.x = x_new;
+    this.y = y_new;
+    this.z = z_new;
     return this;
   }
   
