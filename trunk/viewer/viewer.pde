@@ -90,6 +90,9 @@ void draw() {
     scribe("  shade: 'g' (toggle)", header_line++);
     scribe("  vnorm: 'v' (toggle)", header_line++);
     scribe("  tnorm: 't' (toggle)", header_line++);
+    scribe("  move the origin: 'p' + mousedrag", header_line++);
+    scribe("  move the axis: 'o' + mousedrag", header_line++);
+    scribe("  rotate the shape: 'l' + mousedrag", header_line++);
     scribe("EDIT SHAPE (toggle with 'e')", header_line++);
     scribe("  change shape: '1'-'4'", header_line++);
     scribe("  add: 'i' + mouseclick", header_line++);
