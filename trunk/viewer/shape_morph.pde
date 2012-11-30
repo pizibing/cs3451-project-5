@@ -75,25 +75,25 @@ class ShapeMorph {
       for (int j = 0; j < B.num_corners; j++) {
         boolean flag = true;
         Vector v;
-        for (Edge e: Edges_B){
+        for (Edge e: edges_B){
           if (e.A.equals(B.G[j])){
-             v = Vector(e.A, e.B);
-             if (v.dot(A.Nt[i])>0)){
+             v = new Vector(e.A, e.B);
+             if (v.dot(A.Nt[i])>0){
                flag = false;
              }
              else if (v.dot(A.Nt[i])==0){
-                if (norm(Vector(A.C[i],e.B)) < norm(Vector(A.C[i],e.A))){
+                if (norm(new Vector(A.C[i],e.B)) < norm(new Vector(A.C[i],e.A))){
                     flag = false;
                 }
              }
           }
           else if (e.B.equals(B.G[j])){
-             v = Vector(e.B, e.A);
-             if (v.dot(A.Nt[i])>0)){
+             v = new Vector(e.B, e.A);
+             if (v.dot(A.Nt[i])>0){
                flag = false;
              }
              else if (v.dot(A.Nt[i])==0){
-                if (norm(Vector(A.C[i],e.A)) < norm(Vector(A.C[i],e.B))){
+                if (norm(new Vector(A.C[i],e.A)) < norm(new Vector(A.C[i],e.B))){
                     flag = false;
                 }
              }
@@ -112,25 +112,25 @@ class ShapeMorph {
       for (int j = 0; j < A.num_corners; j++) {
         boolean flag = true;
         Vector v;
-        for (Edge e: Edges_A){
+        for (Edge e: edges_A){
           if (e.A.equals(A.G[j])){
-             v = Vector(e.A, e.B);
-             if (v.dot(B.Nt[i])>0)){
+             v = new Vector(e.A, e.B);
+             if (v.dot(B.Nt[i])>0){
                flag = false;
              }
              else if (v.dot(B.Nt[i])==0){
-                if (norm(Vector(B.C[i],e.B)) < norm(Vector(B.C[i],e.A))){
+                if (norm(new Vector(B.C[i],e.B)) < norm(new Vector(B.C[i],e.A))){
                     flag = false;
                 }
              }
           }
           else if (e.B.equals(A.G[j])){
-             v = Vector(e.B, e.A);
-             if (v.dot(B.Nt[i])>0)){
+             v = new Vector(e.B, e.A);
+             if (v.dot(B.Nt[i])>0){
                flag = false;
              }
              else if (v.dot(B.Nt[i])==0){
-                if (norm(Vector(B.C[i],e.A)) < norm(Vector(B.C[i],e.B))){
+                if (norm(new Vector(B.C[i],e.A)) < norm(new Vector(B.C[i],e.B))){
                     flag = false;
                 }
              }
