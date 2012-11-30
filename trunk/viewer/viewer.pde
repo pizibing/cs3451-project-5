@@ -36,6 +36,7 @@ int curr_shape = 0;
 int num_shapes = 4;
 int num_sides = 6;
 ShapeFrame[] shapes = new ShapeFrame[num_shapes];
+ShapeMorph morph;
 
 void initView() {
   vQ = new Point(0, 0, 0);
@@ -65,6 +66,7 @@ void setup() {
   for (int i = 0; i < num_shapes; i++) {
     shapes[i] = new ShapeFrame(num_sides);
   }
+  morph = new ShapeMorph(shapes[0].corner_table, shapes[1].corner_table);
 }
 
 void draw() {
@@ -248,7 +250,7 @@ void keyReleased() {
     String filename = "data/start.pts";
     try {
       saveScene(filename);
-      println("saved scene from file: " + filename);
+      println("saved scene to file: " + filename);
     }
     catch (IOException ioe) {
       println(ioe);
