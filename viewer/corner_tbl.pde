@@ -181,8 +181,7 @@ class CornerTable {
     int t_i = num_triangles++;
     C[t_i] = div(add(add(G[a], G[b]), G[c]), 3);
     // triangle normal
-    Nt[t_i] = cross(new Vector(G[a], G[b]), new Vector(G[a], G[c])).normalize();
-    //Nt[t_i].normalize();
+    Nt[t_i] = cross(new Vector(G[c], G[a]), new Vector(G[b], G[a])).normalize();
     // calculate normals
     calcVertexNormals();
     // return triangle index
@@ -281,7 +280,7 @@ class CornerTable {
   void drawVertexNormals() {
     Point result = null;
     for (int i = 0; i < this.num_vertices; i++) {
-       result = add(this.G[i], mult(this.Nv[i], 50));
+       result = add(this.G[i], mult(this.Nv[i], 100));
        beginShape(LINE);
        vertex(this.G[i].x, this.G[i].y, this.G[i].z);
        vertex(result.x, result.y, result.z);
@@ -295,7 +294,7 @@ class CornerTable {
   void drawTriangleNormals() {
     Point result = null;
     for (int i = 0; i < this.num_triangles; i++) {
-      result = add(this.C[i], mult(this.Nt[i], 50));
+      result = add(this.C[i], mult(this.Nt[i], 100));
       beginShape(LINE);
       vertex(this.C[i].x, this.C[i].y, this.C[i].z);
       vertex(result.x, result.y, result.z);
