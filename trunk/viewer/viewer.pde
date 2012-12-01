@@ -62,7 +62,7 @@ void initView() {
 void setup() {
   size(1024, 768, OPENGL); 
   setColors();
-  sphereDetail(12);
+  sphereDetail(6);
   rectMode(CENTER);
   glu = ((PGraphicsOpenGL)g).glu;
   PGraphicsOpenGL pgl = (PGraphicsOpenGL)g;
@@ -121,6 +121,7 @@ void draw() {
     scribe("  use smooth shading: 'g' (toggle)", header_line++);
     scribe("  show vertex normals: 'v' (toggle)", header_line++);
     scribe("  show triangle normals: 't' (toggle)", header_line++);
+    scribe("  show mesh centroids: 'q' (toggle)", header_line++);
     scribe("EDIT SHAPE (toggle with 'e')", header_line++);
     scribe("  change shape: '1'-'4'", header_line++);
     scribe("  add control point: 'i' + mouseclick", header_line++);
@@ -172,22 +173,22 @@ void draw() {
     noStroke();
   }
   if (show_tnorm) {
-    stroke(orange);
+    fill(orange);
     shapes[0].corner_table.drawTriangleNormals();
     shapes[1].corner_table.drawTriangleNormals();
-    noStroke();
+    noFill();
   }
   if (show_vnorm) {
-    stroke(orange);
+    fill(orange);
     shapes[0].corner_table.drawVertexNormals();
     shapes[1].corner_table.drawVertexNormals();
-    noStroke();
+    noFill();
   }
   if (show_centroid) {
-    stroke(orange);
+    fill(orange);
     shapes[0].corner_table.drawCentroid();
     shapes[1].corner_table.drawCentroid();
-    noStroke();
+    noFill();
   }
   // update animation
   if (animate) {
