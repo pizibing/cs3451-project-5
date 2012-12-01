@@ -297,3 +297,17 @@ public Point neville(Point A, Point B, Point C, float s) {
   Point Q = linearlyInterpolate(B, C, s - 1);
   return linearlyInterpolate(P, Q, s / 2);
 }
+
+/**
+ * Calculates the centroid
+ */
+ public Point centroid(Point[] A, int size){
+   Point sum = new Point();
+   Point ret = new Point();
+   float sizef = float(size);
+   
+   for(int i = 0; i < size; i++){
+     sum = add(sum,A[i]);      
+   }  
+   return div(sum, sizef);  
+ }

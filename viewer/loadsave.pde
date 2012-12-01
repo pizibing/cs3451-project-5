@@ -87,19 +87,18 @@ void load(Vector V, BufferedReader in) throws IOException {
  * @param in file buffer to read from
  */
 void load(ShapeFrame shape_frame, BufferedReader in) throws IOException {
-  int num_sides = (new Integer(in.readLine())).intValue();
-  shape_frame.num_sides = num_sides;
-  int frame_size = (new Integer(in.readLine())).intValue();
-  if (frame_size < 1) {
+  shape_frame.spin_angle = (new Float(in.readLine())).intValue();
+  shape_frame.num_sides = (new Integer(in.readLine())).intValue();
+  load(shape_frame.origin, in);
+  shape_frame.frame_size = (new Integer(in.readLine())).intValue();
+  if (shape_frame.frame_size < 1) {
     return;
   }
-  Point[] frame = new Point[frame_size];
-  for (int i = 0; i < frame_size; i++) {
-    frame[i] = new Point();
-    load(frame[i], in);
+  Point[] frame = new Point[shape_frame.frame_size];
+  for (int i = 0; i < shape_frame.frame_size; i++) {
+    shape_frame.frame[i] = new Point();
+    load(shape_frame.frame[i], in);
   }
-  shape_frame.frame = frame;
-  shape_frame.frame_size = frame_size;
 }
 
 /**
@@ -130,12 +129,11 @@ void save(Vector V, PrintWriter out) throws IOException {
  * @param out file buffer to write to
  */
 void save(ShapeFrame shape_frame, PrintWriter out) throws IOException {
-  Point[] frame = shape_frame.frame;
-  int frame_size = shape_frame.frame_size;
-  int num_sides = shape_frame.num_sides;
-  out.println(((Integer)num_sides).toString());
-  out.println(((Integer)frame_size).toString());
-  for (int i = 0; i < frame_size; i++) {
-    save(frame[i], out);
+  out.println(((Float)shape_frame.spin_angle).toString());
+  out.println(((Integer)shape_frame.num_sides).toString());
+  save(shape_frame.origin, out);
+  out.println(((Integer)shape_frame.frame_size).toString());
+  for (int i = 0; i < shape_frame.frame_size; i++) {
+    save(shape_frame.frame[i], out);
   }
 }

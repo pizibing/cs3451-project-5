@@ -302,5 +302,14 @@ class CornerTable {
       show(C[i], 10);
     }
   }
+  
+  /**
+   * draw shape centroid
+   */
+  void drawCentroid() {
+     Point centroid = new Point();
+     centroid = centroid(this.G,this.num_vertices);
+     show(centroid, 30);
+   }
 }
 
