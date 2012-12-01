@@ -34,6 +34,7 @@ boolean show_vnorm = false;
 boolean show_centroid = false;
 // animate
 boolean animate = false;
+boolean animation_step = false;
 float curr_anim_time = 0;
 float frame_rate = 1.0 / 60.0;
 float max_anim_time = 1;
@@ -86,6 +87,7 @@ void setup() {
     println(ioe.toString());
     println("ERROR: couldn't load from file: " + filename);
   }
+  morph.init();
   animation = new CornerTable();
 }
 
@@ -119,8 +121,8 @@ void draw() {
     scribe("  zoom view in/out:  'd' + mousedrag", header_line++);
     scribe("  show mesh:  'm' (toggle)", header_line++);
     scribe("  use smooth shading: 'g' (toggle)", header_line++);
-    scribe("  show vertex normals: 'v' (toggle)", header_line++);
-    scribe("  show triangle normals: 't' (toggle)", header_line++);
+    scribe("  show vertex normals: 'a' (toggle)", header_line++);
+    scribe("  show triangle normals: 'e' (toggle)", header_line++);
     scribe("  show mesh centroids: 'q' (toggle)", header_line++);
     scribe("EDIT SHAPE (toggle with 'e')", header_line++);
     scribe("  change shape: '1'-'4'", header_line++);
@@ -174,32 +176,43 @@ void draw() {
   }
   if (show_tnorm) {
     fill(orange);
+    stroke(orange);
     shapes[0].corner_table.drawTriangleNormals();
     shapes[1].corner_table.drawTriangleNormals();
+    animation.drawTriangleNormals();
     noFill();
+    noStroke();
   }
   if (show_vnorm) {
     fill(orange);
+    stroke(orange);
     shapes[0].corner_table.drawVertexNormals();
     shapes[1].corner_table.drawVertexNormals();
+    animation.drawVertexNormals();
+    noStroke();
     noFill();
   }
   if (show_centroid) {
     fill(orange);
     shapes[0].corner_table.drawCentroid();
     shapes[1].corner_table.drawCentroid();
+    animation.drawCentroid();
     noFill();
   }
   // update animation
+  if (animation_step) {
+    animation = morph.animate(curr_anim_time);
+    animation_step = false;
+  }
   if (animate) {
     animation = morph.animate(curr_anim_time);
-    fill(green);
-    stroke(black);
-    animation.drawTriangles(smooth_shading);
-    noFill();
-    noStroke();
     curr_anim_time += frame_rate;
   }
+  fill(green);
+  stroke(black);
+  animation.drawTriangles(smooth_shading);
+  noFill();
+  noStroke();
 }
 
 void mousePressed() {
@@ -229,7 +242,6 @@ void mouseDragged() {
   if (mode_edit) {
     // convert to convex
     if (keyPressed && key == 'C') {
-      // TODO
       shapes[curr_shape].createOutlineAndMesh();
     }
     // move the origin
@@ -253,9 +265,19 @@ void mouseDragged() {
       shapes[curr_shape].alignEdge();
       shapes[curr_shape].createOutlineAndMesh();
     }
+    // add/remove sides
+    else if (keyPressed && key == ',') {
+      shapes[curr_shape].num_sides = (shapes[curr_shape].num_sides - 1 < 3) ? 3 : shapes[curr_shape].num_sides - 1;
+      shapes[curr_shape].createOutlineAndMesh();
+    }
+    else if (keyPressed && key == '.') {
+      shapes[curr_shape].num_sides++;
+      shapes[curr_shape].createOutlineAndMesh();
+    }
   }
   else if (!animate && keyPressed && key == 't') {
     curr_anim_time += 0.001 * float(mouseX - pmouseX);
+    animation_step = true;
   }
   // move view
   else {
@@ -303,18 +325,17 @@ void keyReleased() {
   }
   if (key == ' ' && !mode_edit) {
     animate = !animate;
-    morph.init();
   }
   // toggle help dialog
   if (key == '?') {
     show_help = !show_help;
   }
   // toggle triangle normals
-  if (key == 't') {
+  if (key == 'w') {
     show_tnorm = !show_tnorm;
   }
   // toggle vertex normals
-  if (key == 'v') {
+  if (key == 'a') {
     show_vnorm = !show_vnorm;
   }
   // toggle centroid display
@@ -346,16 +367,5 @@ void keyReleased() {
       println(ioe.toString());
       println("ERROR: couldn't load from file: " + filename);
     }
-  }
-}
-
-void keyPressed() {
-  if (key == ',') {
-    shapes[curr_shape].num_sides = (shapes[curr_shape].num_sides - 1 < 3) ? 3 : shapes[curr_shape].num_sides - 1;
-    shapes[curr_shape].createOutlineAndMesh();
-  }
-  if (key == '.') {
-    shapes[curr_shape].num_sides++;
-    shapes[curr_shape].createOutlineAndMesh();
   }
 }
