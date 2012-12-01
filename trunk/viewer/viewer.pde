@@ -31,6 +31,7 @@ boolean smooth_shading = false;
 boolean show_mesh = false;
 boolean show_tnorm = false;
 boolean show_vnorm = false;
+boolean show_centroid = false;
 // animate
 boolean animate = false;
 float curr_anim_time = 0;
@@ -45,6 +46,7 @@ int num_shapes = 4;
 int num_sides = 6;
 ShapeFrame[] shapes = new ShapeFrame[num_shapes];
 ShapeMorph morph;
+CornerTable animation;
 
 void initView() {
   vQ = new Point(0, 0, 0);
@@ -84,6 +86,7 @@ void setup() {
     println(ioe.toString());
     println("ERROR: couldn't load from file: " + filename);
   }
+  animation = new CornerTable();
 }
 
 void draw() {
@@ -157,27 +160,43 @@ void draw() {
   if (show_mesh) {
     fill(cyan);
     stroke(black);
-    shapes[curr_shape].drawMesh(smooth_shading);
+    shapes[0].drawMesh(smooth_shading);
+    shapes[1].drawMesh(smooth_shading);
     noFill();
     noStroke();
   }
   else {
     stroke(black);
-    shapes[curr_shape].drawOutline();
+    shapes[0].drawOutline();
+    shapes[1].drawOutline();
     noStroke();
   }
   if (show_tnorm) {
     stroke(orange);
-    shapes[curr_shape].corner_table.drawTriangleNormals();
+    shapes[0].corner_table.drawTriangleNormals();
+    shapes[1].corner_table.drawTriangleNormals();
     noStroke();
   }
   if (show_vnorm) {
     stroke(orange);
-    shapes[curr_shape].corner_table.drawVertexNormals();
+    shapes[0].corner_table.drawVertexNormals();
+    shapes[1].corner_table.drawVertexNormals();
+    noStroke();
+  }
+  if (show_centroid) {
+    stroke(orange);
+    shapes[0].corner_table.drawCentroid();
+    shapes[1].corner_table.drawCentroid();
     noStroke();
   }
   // update animation
   if (animate) {
+    animation = morph.animate(curr_anim_time);
+    fill(green);
+    stroke(black);
+    animation.drawTriangles(smooth_shading);
+    noFill();
+    noStroke();
     curr_anim_time += frame_rate;
   }
 }
@@ -278,11 +297,12 @@ void keyReleased() {
     smooth_shading = !smooth_shading;
   }
   // toggle edit mode
-  if (key == 'e') {
+  if (key == 'e' && !animate) {
     mode_edit = !mode_edit;
   }
-  if (key == ' ') {
+  if (key == ' ' && !mode_edit) {
     animate = !animate;
+    morph.init();
   }
   // toggle help dialog
   if (key == '?') {
@@ -295,6 +315,10 @@ void keyReleased() {
   // toggle vertex normals
   if (key == 'v') {
     show_vnorm = !show_vnorm;
+  }
+  // toggle centroid display
+  if (key == 'q') {
+    show_centroid = !show_centroid;
   }
   // make convex
   if (key == 'C') {

@@ -276,11 +276,6 @@ class ShapeFrame {
       }
       endShape(CLOSE);
     }*/
-    beginShape(LINES);
-    stroke(green);
-    vertex(this.frame[0].x, this.frame[0].y, this.frame[this.frame_size-1].z);
-    vertex(this.axis.x * 200.0, this.axis.y * 200.0, this.axis.z * 200.0);
-    endShape();
   }
   
   /**
