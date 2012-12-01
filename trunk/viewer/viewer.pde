@@ -28,7 +28,7 @@ boolean show_help = false;
 // shading mode
 boolean smooth_shading = false;
 // display mode
-boolean show_mesh = false;
+boolean show_mesh = true;
 boolean show_tnorm = false;
 boolean show_vnorm = false;
 boolean show_centroid = false;
@@ -36,7 +36,7 @@ boolean show_centroid = false;
 boolean animate = false;
 boolean animation_step = false;
 float curr_anim_time = 0;
-float frame_rate = 1.0 / 60.0;
+float frame_rate = 1.0 / 10.0;
 float max_anim_time = 1;
 // edit mode
 boolean mode_edit = false;
@@ -255,23 +255,15 @@ void mouseDragged() {
       shapes[curr_shape].createOutlineAndMesh();
     }
     // rotate current shape axis
-    else if (keyPressed && key == 'o') {
-      shapes[curr_shape].rotateAxis(-0.1 * float(mouseX - pmouseX), vI, vJ);
-      shapes[curr_shape].createOutlineAndMesh();
+    else if(keyPressed && key == 'o') {
+      shapes[curr_shape].corner_table.G = polyRotate(shapes[curr_shape].corner_table.G, shapes[curr_shape].corner_table.num_vertices,0.01*float(mouseX - pmouseX));
+      shapes[curr_shape].corner_table.calcVertexNormals();
+      shapes[curr_shape].corner_table.calcTriangleNormals();
     }
     // move selected point
     else if (selected != null) {
       selected.add(getMouseDrag());
       shapes[curr_shape].alignEdge();
-      shapes[curr_shape].createOutlineAndMesh();
-    }
-    // add/remove sides
-    else if (keyPressed && key == ',') {
-      shapes[curr_shape].num_sides = (shapes[curr_shape].num_sides - 1 < 3) ? 3 : shapes[curr_shape].num_sides - 1;
-      shapes[curr_shape].createOutlineAndMesh();
-    }
-    else if (keyPressed && key == '.') {
-      shapes[curr_shape].num_sides++;
       shapes[curr_shape].createOutlineAndMesh();
     }
   }
@@ -366,6 +358,20 @@ void keyReleased() {
     catch (IOException ioe) {
       println(ioe.toString());
       println("ERROR: couldn't load from file: " + filename);
+    }
+  }
+}
+
+void keyPressed() {
+  if (mode_edit) {
+    // add/remove sides
+    if (keyPressed && key == ',') {
+      shapes[curr_shape].num_sides = (shapes[curr_shape].num_sides - 1 < 3) ? 3 : shapes[curr_shape].num_sides - 1;
+      shapes[curr_shape].createOutlineAndMesh();
+    }
+    if (keyPressed && key == '.') {
+      shapes[curr_shape].num_sides++;
+      shapes[curr_shape].createOutlineAndMesh();
     }
   }
 }

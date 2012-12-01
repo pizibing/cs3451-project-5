@@ -311,3 +311,17 @@ public Point neville(Point A, Point B, Point C, float s) {
    }  
    return div(sum, sizef);  
  }
+ 
+ /**
+ * Rotate a polygon
+ */
+ public Point[] polyRotate(Point[] A, int size, float angle){
+   Point[] newG = new Point[size];
+   Point centroid = new Point();
+   centroid = centroid(A,size);
+   println(centroid.x + " " + centroid.y + " " + centroid.z);
+   for(int i = 0; i < size; i++){    
+     newG[i] = rotate(A[i], angle, vI, vJ, centroid);      
+   }  
+   return newG;
+ }
