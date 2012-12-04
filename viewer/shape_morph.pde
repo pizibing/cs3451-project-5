@@ -33,39 +33,59 @@ class ShapeMorph {
    * 
    */
   Edge[] getEdgeList(CornerTable C) {
-    Edge[] edges_C = new Edge[C.num_triangles*3];
+    Edge[] edges_C = new Edge[C.num_triangles*3/2];
     int edges_C_size = 0;
     for (int i = 0; i < C.num_triangles; i++) {
-      println("i:" + i);
       // build triangle edges
-      Edge e1 = new Edge(C.G[C.V[3*i]], C.G[C.V[C.next(3*i)]]);
-      Edge e2 = new Edge(C.G[C.V[C.prev(3*i)]], C.G[C.V[3*i]]);
-      Edge e3 = new Edge(C.G[C.V[C.next(3*i)]], C.G[C.V[C.prev(3*i)]]);
+      Edge e1 = new Edge(C.G[C.V[3*i]], C.G[C.V[3*i+1]]);
+      Edge e2 = new Edge(C.G[C.V[3*i]], C.G[C.V[3*i+2]]);
+      Edge e3 = new Edge(C.G[C.V[3*i+1]], C.G[C.V[3*i+2]]);
       // check if edges exist
       boolean e1_match = false;
       boolean e2_match = false;
       boolean e3_match = false;
-      println("e1:" + e1_match + "\ne2:" + e2_match + "\ne3:" + e3_match);
-      for (int j = 0; j < edges_C_size; j++) {
-        e1_match = e1.equals(edges_C[j]);
-        e2_match = e2.equals(edges_C[j]);
-        e3_match = e3.equals(edges_C[j]);
+//      println("e1:" + e1_match + "\ne2:" + e2_match + "\ne3:" + e3_match);
+//      for (int j = 0; j < edges_C_size; j++) {
+//        e1_match = e1.equals(edges_C[j]);
+//        e2_match = e2.equals(edges_C[j]);
+//        e3_match = e3.equals(edges_C[j]);
+//      }
+      int j=0;
+      while ((!e1_match) && j<edges_C_size){
+          e1_match = e1.equals(edges_C[j]);
+          j++;
       }
       if (!e1_match) {
         edges_C[edges_C_size++] = e1;
       }
+      j=0;
+      while ((!e2_match) && j<edges_C_size){
+          e2_match = e2.equals(edges_C[j]);
+          j++;
+      }
       if (!e2_match) {
         edges_C[edges_C_size++] = e2;
+      }
+      j=0;
+      while ((!e3_match) && j<edges_C_size){
+          e3_match = e3.equals(edges_C[j]);
+          j++;
       }
       if (!e3_match) {
         edges_C[edges_C_size++] = e3;
       }
     }
-    Edge[] temp = new Edge[edges_C_size];
-    for (int i = 0; i < edges_C_size; i++) {
-      temp[i] = edges_C[i];
-    }
-    return temp;
+//    for(int i = 0; i<edges_C_size; i++){
+//      println("A");
+//      println(edges_C[i].A.x);
+//      println(edges_C[i].A.y);
+//      println(edges_C[i].A.z);
+//      println("B");
+//      println(edges_C[i].B.x);
+//      println(edges_C[i].B.y);
+//      println(edges_C[i].B.z);
+//    }
+    return edges_C;
   }
   
   /**
@@ -73,8 +93,8 @@ class ShapeMorph {
    */
   void map_FacesToVerts() {
     for (int i = 0; i < A.num_triangles; i++) {
-      for (int j = 0; j < B.num_corners; j++) {
-        this.faces_to_verts[i][j] = true;
+      for (int j = 0; j < B.num_vertices; j++) {
+        this.faces_to_verts[i][j] = false;
 //        boolean flag = true;
 //        Vector v;
 //        for (Edge e: edges_B){
@@ -111,35 +131,35 @@ class ShapeMorph {
    */
   void map_VertsToFaces() {
     for (int i = 0; i < B.num_triangles; i++) {
-      for (int j = 0; j < A.num_corners; j++) {
-        this.verts_to_faces[j][i] = true;
-//        boolean flag = true;
-//        Vector v;
-//        for (Edge e: edges_A){
-//          if (e.A.equals(A.G[j])){
-//             v = new Vector(e.A, e.B);
-//             if (v.dot(B.Nt[i])>0){
-//               flag = false;
-//             }
-//             else if (abs(v.dot(B.Nt[i])) < 0.001){
-//                if (norm(new Vector(B.C[i],e.B)) < norm(new Vector(B.C[i],e.A))){
-//                    flag = false;
-//                }
-//             }
-//          }
-//          else if (e.B.equals(A.G[j])){
-//             v = new Vector(e.B, e.A);
-//             if (v.dot(B.Nt[i])>0){
-//               flag = false;
-//             }
-//             else if (abs(v.dot(B.Nt[i])) < 0.001){
-//                if (norm(new Vector(B.C[i],e.A)) < norm(new Vector(B.C[i],e.B))){
-//                    flag = false;
-//                }
-//             }
-//          }
-//        }
-//        this.verts_to_faces[j][i] = flag;
+      for (int j = 0; j < A.num_vertices; j++) {
+//        this.verts_to_faces[j][i] = false;
+        boolean flag = true;
+        Vector v;
+        for (Edge e: edges_A){
+          if (e.A.equals(A.G[j])){
+             v = new Vector(e.A, e.B);
+             if (v.dot(B.Nt[i])>0){
+               flag = false;
+             }
+             else if (abs(v.dot(B.Nt[i])) < 0.001){
+                if (norm(new Vector(B.C[i],e.B)) < norm(new Vector(B.C[i],e.A))){
+                    flag = false;
+                }
+             }
+          }
+          else if (e.B.equals(A.G[j])){
+             v = new Vector(e.B, e.A);
+             if (v.dot(B.Nt[i])>0){
+               flag = false;
+             }
+             else if (abs(v.dot(B.Nt[i])) < 0.001){
+                if (norm(new Vector(B.C[i],e.A)) < norm(new Vector(B.C[i],e.B))){
+                    flag = false;
+                }
+             }
+          }
+        }
+        this.verts_to_faces[j][i] = flag;
       }
     }
   }
@@ -203,24 +223,24 @@ class ShapeMorph {
       }
     }
     // edges to edges
-    for (int i = 0; i < edges_A.length; i++) {
-      for (int j = 0; j < edges_B.length; j++) {
-        Point A1 = edges_A[i].A;
-        Point A2 = edges_A[i].B;
-        Point B1 = edges_B[j].A;
-        Point B2 = edges_B[j].B;
-        Point A11 = linearlyInterpolate(A1, B1, t);
-        Point A12 = linearlyInterpolate(A1, B2, t);
-        Point B11 = linearlyInterpolate(A2, B1, t);
-        Point B12 = linearlyInterpolate(A2, B2, t);
-        int a11 = result.addVertex(A11);
-        int a12 = result.addVertex(A12);
-        int b11 = result.addVertex(B11);
-        int b12 = result.addVertex(B12);
-        result.addTriangle(a11, a12, b11);
-        result.addTriangle(a12, b11, b12);
-      }
-    }
+//    for (int i = 0; i < edges_A.length; i++) {
+//      for (int j = 0; j < edges_B.length; j++) {
+//        Point A1 = edges_A[i].A;
+//        Point A2 = edges_A[i].B;
+//        Point B1 = edges_B[j].A;
+//        Point B2 = edges_B[j].B;
+//        Point A11 = linearlyInterpolate(A1, B1, t);
+//        Point A12 = linearlyInterpolate(A1, B2, t);
+//        Point B11 = linearlyInterpolate(A2, B1, t);
+//        Point B12 = linearlyInterpolate(A2, B2, t);
+//        int a11 = result.addVertex(A11);
+//        int a12 = result.addVertex(A12);
+//        int b11 = result.addVertex(B11);
+//        int b12 = result.addVertex(B12);
+//        result.addTriangle(a11, a12, b11);
+//        result.addTriangle(a12, b11, b12);
+//      }
+//    }
     return result;
   }
 }
