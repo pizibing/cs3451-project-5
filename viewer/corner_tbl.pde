@@ -216,12 +216,15 @@ class CornerTable {
     if (this.num_triangles >= this.Nt.length) {
       Vector[] temp1 = new Vector[this.Nt.length * 2];
       Point[] temp2 = new Point[this.Nt.length * 2];
+      color[] temp3 = new color[this.Nt.length * 2];
       for (int i = 0; i < this.num_triangles; i++) {
         temp1[i] = this.Nt[i];
         temp2[i] = this.C[i];
+        temp3[i] = this.colors[i];
       }
       this.Nt = temp1;
       this.C = temp2;
+      this.colors = temp3;
     }
     // add triangle
     int a_i = num_corners;
