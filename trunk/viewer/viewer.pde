@@ -36,7 +36,7 @@ boolean show_centroid = false;
 boolean animate = false;
 boolean animation_step = false;
 float curr_anim_time = 0;
-float frame_rate = 1.0 / 10.0;
+float frame_rate = 1.0 / 60.0;
 float max_anim_time = 1;
 // edit mode
 boolean mode_edit = false;
@@ -48,6 +48,7 @@ int num_sides = 6;
 ShapeFrame[] shapes = new ShapeFrame[num_shapes];
 ShapeMorph morph;
 CornerTable animation;
+Curve neville_curve;
 
 void initView() {
   vQ = new Point(0, 0, 0);
@@ -165,6 +166,8 @@ void draw() {
     stroke(black);
     shapes[0].drawMesh(smooth_shading);
     shapes[1].drawMesh(smooth_shading);
+    shapes[2].drawMesh(smooth_shading);
+    shapes[3].drawMesh(smooth_shading);
     noFill();
     noStroke();
   }
@@ -172,6 +175,8 @@ void draw() {
     stroke(black);
     shapes[0].drawOutline();
     shapes[1].drawOutline();
+    shapes[2].drawOutline();
+    shapes[3].drawOutline();
     noStroke();
   }
   if (show_tnorm) {
@@ -179,6 +184,8 @@ void draw() {
     stroke(orange);
     shapes[0].corner_table.drawTriangleNormals();
     shapes[1].corner_table.drawTriangleNormals();
+    shapes[2].corner_table.drawTriangleNormals();
+    shapes[3].corner_table.drawTriangleNormals();
     animation.drawTriangleNormals();
     noFill();
     noStroke();
@@ -188,6 +195,8 @@ void draw() {
     stroke(orange);
     shapes[0].corner_table.drawVertexNormals();
     shapes[1].corner_table.drawVertexNormals();
+    shapes[2].corner_table.drawVertexNormals();
+    shapes[3].corner_table.drawVertexNormals();
     animation.drawVertexNormals();
     noStroke();
     noFill();
@@ -196,6 +205,8 @@ void draw() {
     fill(orange);
     shapes[0].corner_table.drawCentroid();
     shapes[1].corner_table.drawCentroid();
+    shapes[2].corner_table.drawCentroid();
+    shapes[3].corner_table.drawCentroid();
     animation.drawCentroid();
     noFill();
   }

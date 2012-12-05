@@ -18,6 +18,8 @@ class CornerTable {
   int num_vertices;
   int num_triangles;
   int num_corners;
+  // centroid
+  Point centroid;
   
   /**
    * constructor
@@ -39,6 +41,7 @@ class CornerTable {
     this.num_vertices = 0;
     this.num_triangles = 0;
     this.num_corners = 0;
+    this.centroid = null;
   }
   
   /**
@@ -304,11 +307,19 @@ class CornerTable {
   }
   
   /**
+   * calculate the mesh centroid
+   */
+  void calcCentroid() {
+    this.centroid = centroid(this.G, this.num_vertices);
+  }
+  
+  /**
    * draw shape centroid
    */
   void drawCentroid() {
-     Point centroid = new Point();
-     centroid = centroid(this.G,this.num_vertices);
+     if (centroid == null) {
+       this.calcCentroid();
+     }
      show(centroid, 30);
    }
 }
