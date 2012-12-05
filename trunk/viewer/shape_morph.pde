@@ -19,15 +19,16 @@ class ShapeMorph {
   ShapeMorph(CornerTable A, CornerTable B) {
     this.A = A;
     this.B = B;
+    this.init();
   }
   
   /**
    * initialize maps
    */
   void init() {
-    this.faces_to_verts = new boolean[A.num_triangles][B.num_corners];
-    this.verts_to_faces = new boolean[A.num_corners][B.num_triangles];
-    this.verts_to_verts = new boolean[A.num_corners][B.num_corners];
+    this.faces_to_verts = new boolean[A.num_triangles][B.num_vertices];
+    this.verts_to_faces = new boolean[A.num_vertices][B.num_triangles];
+    this.verts_to_verts = new boolean[A.num_vertices][B.num_vertices];
     this.edges_A = this.getEdgeList(A);
     this.edges_B = this.getEdgeList(B);
     this.edges_index_A = this.getEdgeIndexList(A);
@@ -254,6 +255,10 @@ class ShapeMorph {
           int a3 = result.addVertex(A3);
           result.addColorTriangle(a1, a2, a3, red);
         }
+      }
+    }
+    for (int j = 0; j < this.verts_to_faces.length; j++) {
+      for (int i = 0; i < this.verts_to_faces[j].length; i++) {
         // verts to faces
         if (verts_to_faces[j][i]) {
           Point B1 = B.G[B.V[3*i]];

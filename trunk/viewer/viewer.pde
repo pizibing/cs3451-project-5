@@ -36,7 +36,7 @@ boolean show_centroid = false;
 boolean animate = false;
 boolean animation_step = false;
 float curr_anim_time = 0;
-float frame_rate = 1.0 / 60.0;
+float frame_rate = 1.0 / 120.0;
 float max_anim_time = 1;
 // edit mode
 boolean mode_edit = false;
@@ -78,7 +78,6 @@ void setup() {
   for (int i = 0; i < num_shapes; i++) {
     shapes[i] = new ShapeFrame(num_sides);
   }
-  morph = new ShapeMorph(shapes[0].corner_table, shapes[1].corner_table);
   shapes[curr_shape].rotateAxis(radians(90), vI, vJ);
   try {
     loadScene(filename);
@@ -88,17 +87,23 @@ void setup() {
     println(ioe.toString());
     println("ERROR: couldn't load from file: " + filename);
   }
+  morph = new ShapeMorph(shapes[0].corner_table, shapes[1].corner_table);
   morph.init();
   animation = new CornerTable();
 }
 
 void draw() {
+  morph = new ShapeMorph(shapes[0].corner_table, shapes[1].corner_table);
+  morph.init();
   // check animation time
   if (curr_anim_time > max_anim_time) {
-    curr_anim_time = 0;
+    //curr_anim_time = 0;
+    curr_anim_time = max_anim_time;
+    frame_rate *= -1;
   }
   else if (curr_anim_time < 0) {
     curr_anim_time = 0;
+    frame_rate *= -1;
   }
   // draw
   hint(DISABLE_DEPTH_TEST);
@@ -112,7 +117,7 @@ void draw() {
   scribeFooter("press '?' to toggle help", footer_line++);
   scribeFooter("display: " + ((show_mesh) ? "SOLID" : "PROFILE") + ", " +
                "shading: " + ((smooth_shading) ? "SMOOTH" : "FLAT"), footer_line++);
-  scribeFooter("current shape: " + (curr_shape + 1) + ", animation: " + ((animate) ? "ON " : "OFF") + " (" + nf(curr_anim_time, 1, 2) + "s)", footer_line++);
+  scribeFooter("current shape: " + (curr_shape + 1) + ", animation: " + ((animate) ? "ON " : "OFF") + " (" + nf(curr_anim_time, 1, 2) + ")", footer_line++);
   if (show_help) {
     scribe("SAVE/LOAD (file:\"" + filename + "\")", header_line++);
     scribe("  save scene: 'W'", header_line++);
@@ -211,17 +216,14 @@ void draw() {
     noFill();
   }
   // update animation
-  if (animation_step) {
-    animation = morph.animate(curr_anim_time);
-    animation_step = false;
-  }
+  animation = morph.animate(curr_anim_time);
   if (animate) {
-    animation = morph.animate(curr_anim_time);
     curr_anim_time += frame_rate;
   }
   fill(green);
   stroke(black);
   animation.drawColorTriangles(smooth_shading);
+  //animation.drawTriangles(smooth_shading);
   noFill();
   noStroke();
 }
