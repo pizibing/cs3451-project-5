@@ -283,7 +283,7 @@ class ShapeMorph {
           int a1 = result.addVertex(A1);
           int a2 = result.addVertex(A2);
           int a3 = result.addVertex(A3);
-          result.addTriangle(a1, a2, a3);
+          result.addColorTriangle(a1, a2, a3, red);
         }
         // verts to faces
         if (verts_to_faces[j][i]) {
@@ -297,7 +297,7 @@ class ShapeMorph {
           int b1 = result.addVertex(B1);
           int b2 = result.addVertex(B2);
           int b3 = result.addVertex(B3);
-          result.addTriangle(b1, b2, b3);
+          result.addColorTriangle(b1, b2, b3, green);
         }
       }
     }
@@ -317,8 +317,8 @@ class ShapeMorph {
           int a12 = result.addVertex(A12);
           int b11 = result.addVertex(B11);
           int b12 = result.addVertex(B12);
-          result.addTriangle(a11, a12, b11);
-          result.addTriangle(a12, b11, b12);
+          result.addColorTriangle(a11, a12, b11,blue);
+          result.addColorTriangle(a12, b11, b12,blue);
         }
       }
     }
