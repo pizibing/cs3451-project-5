@@ -14,6 +14,8 @@ class CornerTable {
   Vector[] Nt;
   // centroids
   Point[] C;
+  // triangle colors
+  color[] colors;
   // sizes
   int num_vertices;
   int num_triangles;
@@ -38,6 +40,7 @@ class CornerTable {
     this.Nv = new Vector[30];
     this.Nt = new Vector[30];
     this.C = new Point[30];
+    this.colors = new color[30];
     this.num_vertices = 0;
     this.num_triangles = 0;
     this.num_corners = 0;
@@ -191,6 +194,58 @@ class CornerTable {
     return a_i;
   }
   
+    /**
+   * add  color triangle from vertex indices
+   * @param a triangle vertex
+   * @param b triangle vertex
+   * @param c triangle vertex
+   */
+  int addColorTriangle(int a, int b, int c, color col) {
+    // resize
+
+    if (this.num_corners + 2 >= this.V.length) {
+      int[] temp1 = new int[this.V.length * 2];
+      int[] temp2 = new int[this.V.length * 2];
+      for (int i = 0; i < this.num_corners; i++) {
+        temp1[i] = this.V[i];
+        temp2[i] = this.O[i];
+      }
+      this.V = temp1;
+      this.O = temp2;
+    }
+    if (this.num_triangles >= this.Nt.length) {
+      Vector[] temp1 = new Vector[this.Nt.length * 2];
+      Point[] temp2 = new Point[this.Nt.length * 2];
+      for (int i = 0; i < this.num_triangles; i++) {
+        temp1[i] = this.Nt[i];
+        temp2[i] = this.C[i];
+      }
+      this.Nt = temp1;
+      this.C = temp2;
+    }
+    // add triangle
+    int a_i = num_corners;
+    num_corners += 3;
+    this.V[a_i] = a;
+    this.V[a_i+1] = b;
+    this.V[a_i+2] = c;
+    // build opposite table
+    this.fillOppositeTable();
+    // centroid
+    int t_i = num_triangles++;
+    C[t_i] = div(add(add(G[a], G[b]), G[c]), 3);
+    // triangle normal
+    Nt[t_i] = cross(new Vector(G[a], G[b]), new Vector(G[a], G[c])).mult(-1);
+    //println("array color is " + col);
+    
+    colors[t_i] = col;
+    // calculate normals
+    calcVertexNormals();
+    // return triangle index
+    return a_i;
+  }
+  
+  
   /**
    * fill opposite table
    */
@@ -275,6 +330,40 @@ class CornerTable {
       }
     }
     endShape();
+  }
+  
+   /**
+   * Draw traingles with a color defined
+   */
+  void drawColorTriangles(boolean smooth){
+    beginShape(TRIANGLES);
+    int curr = 0;
+    int vi = 0;
+    int vni = 0;
+    int vpi = 0;
+
+    for (int i = 0; i < this.num_corners; i += 3) {
+      //fill(color(i));
+      vi = vert(i);
+      vni = vert(next(i));
+      vpi = vert(prev(i));
+          //fill(color(i));
+          fill(colors[i/3]);
+      if (smooth) {
+        normal(Nv[vi].x, Nv[vi].y, Nv[vi].z);
+        vertex(G[vi].x, G[vi].y, G[vi].z);
+        normal(Nv[vni].x, Nv[vni].y, Nv[vni].z);
+        vertex(G[vni].x, G[vni].y, G[vni].z);
+        normal(Nv[vpi].x, Nv[vpi].y, Nv[vpi].z);
+        vertex(G[vpi].x, G[vpi].y, G[vpi].z);
+      }
+      else {
+        vertex(G[vi].x, G[vi].y, G[vi].z);
+        vertex(G[vni].x, G[vni].y, G[vni].z);
+        vertex(G[vpi].x, G[vpi].y, G[vpi].z);
+      }
+    }
+    endShape();    
   }
   
   /**

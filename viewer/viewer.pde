@@ -123,7 +123,7 @@ void draw() {
     scribe("  show mesh:  'm' (toggle)", header_line++);
     scribe("  use smooth shading: 'g' (toggle)", header_line++);
     scribe("  show vertex normals: 'a' (toggle)", header_line++);
-    scribe("  show triangle normals: 'e' (toggle)", header_line++);
+    scribe("  show triangle normals: 'w' (toggle)", header_line++);
     scribe("  show mesh centroids: 'q' (toggle)", header_line++);
     scribe("EDIT SHAPE (toggle with 'e')", header_line++);
     scribe("  change shape: '1'-'4'", header_line++);
@@ -221,7 +221,7 @@ void draw() {
   }
   fill(green);
   stroke(black);
-  animation.drawTriangles(smooth_shading);
+  animation.drawColorTriangles(smooth_shading);
   noFill();
   noStroke();
 }
