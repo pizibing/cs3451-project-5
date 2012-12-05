@@ -299,6 +299,21 @@ public Point neville(Point A, Point B, Point C, float s) {
 }
 
 /**
+ * calculate a point along the Neville curve
+ * @param A key point
+ * @param B key point
+ * @param C key point
+ * @param D key point
+ * @param s interpolation amount
+ * @return point along the curve at s
+ */
+public Point neville(Point A, Point B, Point C, Point D, float s) {
+  Point P = neville(A, B, C, s);
+  Point Q = neville(B, C, D, s - 1);
+  return linearlyInterpolate(P, Q, s / 2);
+}
+
+/**
  * Calculates the centroid
  */
  public Point centroid(Point[] A, int size){

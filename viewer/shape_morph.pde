@@ -94,34 +94,33 @@ class ShapeMorph {
   void map_FacesToVerts() {
     for (int i = 0; i < A.num_triangles; i++) {
       for (int j = 0; j < B.num_vertices; j++) {
-        this.faces_to_verts[i][j] = false;
-//        boolean flag = true;
-//        Vector v;
-//        for (Edge e: edges_B){
-//          if (e.A.equals(B.G[j])){
-//             v = new Vector(e.A, e.B);
-//             if (v.dot(A.Nt[i])>0){
-//               flag = false;
-//             }
-//             else if (v.dot(A.Nt[i])==0){
-//                if (norm(new Vector(A.C[i],e.B)) < norm(new Vector(A.C[i],e.A))){
-//                    flag = false;
-//                }
-//             }
-//          }
-//          else if (e.B.equals(B.G[j])){
-//             v = new Vector(e.B, e.A);
-//             if (v.dot(A.Nt[i])>0){
-//               flag = false;
-//             }
-//             else if (v.dot(A.Nt[i])==0){
-//                if (norm(new Vector(A.C[i],e.A)) < norm(new Vector(A.C[i],e.B))){
-//                    flag = false;
-//                }
-//             }
-//          }
-//        }
-//        this.faces_to_verts[i][j] = flag;
+        boolean flag = true;
+        Vector v;
+        for (Edge e: edges_B){
+          if (e.A.equals(B.G[j])){
+             v = new Vector(e.A, e.B);
+             if (v.dot(A.Nt[i])>0){
+               flag = false;
+             }
+             else if (abs(v.dot(A.Nt[i])) < 0.001){
+                if (norm(new Vector(A.C[i],e.B)) < norm(new Vector(A.C[i],e.A))){
+                    flag = false;
+                }
+             }
+          }
+          else if (e.B.equals(B.G[j])){
+             v = new Vector(e.B, e.A);
+             if (v.dot(A.Nt[i])>0){
+               flag = false;
+             }
+             else if (abs(v.dot(A.Nt[i])) < 0.001){
+                if (norm(new Vector(A.C[i],e.A)) < norm(new Vector(A.C[i],e.B))){
+                    flag = false;
+                }
+             }
+          }
+        }
+        this.faces_to_verts[i][j] = flag;
       }
     }
   }
@@ -132,7 +131,6 @@ class ShapeMorph {
   void map_VertsToFaces() {
     for (int i = 0; i < B.num_triangles; i++) {
       for (int j = 0; j < A.num_vertices; j++) {
-//        this.verts_to_faces[j][i] = false;
         boolean flag = true;
         Vector v;
         for (Edge e: edges_A){
@@ -222,25 +220,6 @@ class ShapeMorph {
         }
       }
     }
-    // edges to edges
-//    for (int i = 0; i < edges_A.length; i++) {
-//      for (int j = 0; j < edges_B.length; j++) {
-//        Point A1 = edges_A[i].A;
-//        Point A2 = edges_A[i].B;
-//        Point B1 = edges_B[j].A;
-//        Point B2 = edges_B[j].B;
-//        Point A11 = linearlyInterpolate(A1, B1, t);
-//        Point A12 = linearlyInterpolate(A1, B2, t);
-//        Point B11 = linearlyInterpolate(A2, B1, t);
-//        Point B12 = linearlyInterpolate(A2, B2, t);
-//        int a11 = result.addVertex(A11);
-//        int a12 = result.addVertex(A12);
-//        int b11 = result.addVertex(B11);
-//        int b12 = result.addVertex(B12);
-//        result.addTriangle(a11, a12, b11);
-//        result.addTriangle(a12, b11, b12);
-//      }
-//    }
     return result;
   }
 }
