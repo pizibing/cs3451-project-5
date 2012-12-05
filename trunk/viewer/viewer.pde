@@ -23,6 +23,14 @@ Point vQ;
 Point vF;
 Point vE;
 Vector vU;
+// shapes
+int curr_shape = 0;
+int num_shapes = 4;
+int num_sides = 6;
+ShapeFrame[] shapes = new ShapeFrame[num_shapes];
+ShapeMorph morph;
+CornerTable animation;
+Curve neville_curve;
 // display help
 boolean show_help = false;
 // shading mode
@@ -41,14 +49,8 @@ float max_anim_time = 1;
 // edit mode
 boolean mode_edit = false;
 Point selected = null;
-// shapes
-int curr_shape = 0;
-int num_shapes = 4;
-int num_sides = 6;
-ShapeFrame[] shapes = new ShapeFrame[num_shapes];
-ShapeMorph morph;
-CornerTable animation;
-Curve neville_curve;
+boolean edited = false;
+boolean[] edited_shape = new boolean[num_shapes];
 
 void initView() {
   vQ = new Point(0, 0, 0);
@@ -87,14 +89,27 @@ void setup() {
     println(ioe.toString());
     println("ERROR: couldn't load from file: " + filename);
   }
-  morph = new ShapeMorph(shapes[0].corner_table, shapes[1].corner_table);
-  morph.init();
   animation = new CornerTable();
+  edited = true;
+  for (int i = 0; i < num_shapes; i++) {
+    edited_shape[i] = true;
+  }
+  
 }
 
 void draw() {
-  morph = new ShapeMorph(shapes[0].corner_table, shapes[1].corner_table);
-  morph.init();
+  if (edited) {
+    for (int i = 0; i < num_shapes; i++) {
+      if (edited_shape[i]) {
+        shapes[i].alignEdge();
+        shapes[i].createOutlineAndMesh();
+        edited_shape[i] = false;
+      }
+    }
+    morph = new ShapeMorph(shapes[0].corner_table, shapes[1].corner_table);
+    morph.init();
+    edited = false;
+  }
   // check animation time
   if (curr_anim_time > max_anim_time) {
     //curr_anim_time = 0;
@@ -117,7 +132,7 @@ void draw() {
   scribeFooter("press '?' to toggle help", footer_line++);
   scribeFooter("display: " + ((show_mesh) ? "SOLID" : "PROFILE") + ", " +
                "shading: " + ((smooth_shading) ? "SMOOTH" : "FLAT"), footer_line++);
-  scribeFooter("current shape: " + (curr_shape + 1) + ", animation: " + ((animate) ? "ON " : "OFF") + " (" + nf(curr_anim_time, 1, 2) + ")", footer_line++);
+  scribeFooter("animation: " + ((animate) ? "ON " : "OFF") + " (" + nf(curr_anim_time, 1, 2) + ")", footer_line++);
   if (show_help) {
     scribe("SAVE/LOAD (file:\"" + filename + "\")", header_line++);
     scribe("  save scene: 'W'", header_line++);
@@ -234,14 +249,14 @@ void mousePressed() {
       // add point
       if (key == 'i') {
         shapes[curr_shape].addVertex(getMouse());
-        shapes[curr_shape].alignEdge();
-        shapes[curr_shape].createOutlineAndMesh();
+        edited_shape[curr_shape] = true;
+        edited = true;
       }
       // remove point
       if (key == 'd') {
         shapes[curr_shape].deleteClosestVertex(getMouse());
-        shapes[curr_shape].alignEdge();
-        shapes[curr_shape].createOutlineAndMesh();
+        edited_shape[curr_shape] = true;
+        edited = true;
       }
     }
     // select point
@@ -260,12 +275,14 @@ void mouseDragged() {
     // move the origin
     else if (keyPressed && key == 'p') {
       shapes[curr_shape].moveBy(add(mult(vI, float(mouseX - pmouseX)), mult(vJ, -float(mouseY - pmouseY))));
-      shapes[curr_shape].createOutlineAndMesh();
+      edited_shape[curr_shape] = true;
+      edited = true;
     }
     // spin current shape
     else if (keyPressed && key == 'l') {
       shapes[curr_shape].spin(-0.1 * float(mouseX - pmouseX));
-      shapes[curr_shape].createOutlineAndMesh();
+      edited_shape[curr_shape] = true;
+      edited = true;
     }
     // rotate current shape axis
     else if(keyPressed && key == 'o') {
@@ -276,8 +293,8 @@ void mouseDragged() {
     // move selected point
     else if (selected != null) {
       selected.add(getMouseDrag());
-      shapes[curr_shape].alignEdge();
-      shapes[curr_shape].createOutlineAndMesh();
+      edited_shape[curr_shape] = true;
+      edited = true;
     }
   }
   else if (!animate && keyPressed && key == 't') {
@@ -380,11 +397,13 @@ void keyPressed() {
     // add/remove sides
     if (keyPressed && key == ',') {
       shapes[curr_shape].num_sides = (shapes[curr_shape].num_sides - 1 < 3) ? 3 : shapes[curr_shape].num_sides - 1;
-      shapes[curr_shape].createOutlineAndMesh();
+      edited_shape[curr_shape] = true;
+      edited = true;
     }
     if (keyPressed && key == '.') {
       shapes[curr_shape].num_sides++;
-      shapes[curr_shape].createOutlineAndMesh();
+      edited_shape[curr_shape] = true;
+      edited = true;
     }
   }
 }
