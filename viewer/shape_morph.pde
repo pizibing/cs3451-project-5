@@ -35,6 +35,7 @@ class ShapeMorph {
     this.edges_to_edges = new boolean[this.edges_A.length][this.edges_B.length];
     this.map_FacesToVerts();
     this.map_VertsToFaces();
+    this.map_EdgeToEdge();
   }
   
   /**
@@ -52,12 +53,6 @@ class ShapeMorph {
       boolean e1_match = false;
       boolean e2_match = false;
       boolean e3_match = false;
-//      println("e1:" + e1_match + "\ne2:" + e2_match + "\ne3:" + e3_match);
-//      for (int j = 0; j < edges_C_size; j++) {
-//        e1_match = e1.equals(edges_C[j]);
-//        e2_match = e2.equals(edges_C[j]);
-//        e3_match = e3.equals(edges_C[j]);
-//      }
       int j=0;
       while ((!e1_match) && j<edges_C_size){
           e1_match = e1.equals(edges_C[j]);
@@ -83,16 +78,6 @@ class ShapeMorph {
         edges_C[edges_C_size++] = e3;
       }
     }
-//    for(int i = 0; i<edges_C_size; i++){
-//      println("A");
-//      println(edges_C[i].A.x);
-//      println(edges_C[i].A.y);
-//      println(edges_C[i].A.z);
-//      println("B");
-//      println(edges_C[i].B.x);
-//      println(edges_C[i].B.y);
-//      println(edges_C[i].B.z);
-//    }
     return edges_C;
   }
   
@@ -119,12 +104,6 @@ class ShapeMorph {
       boolean e1_match = false;
       boolean e2_match = false;
       boolean e3_match = false;
-//      println("e1:" + e1_match + "\ne2:" + e2_match + "\ne3:" + e3_match);
-//      for (int j = 0; j < edges_C_size; j++)
-//        e1_match = e1.equals(edges_C[j]);
-//        e2_match = e2.equals(edges_C[j]);
-//        e3_match = e3.equals(edges_C[j]);
-//      }
       int j=0;
       while ((!e1_match) && j<edges_C_size){
           if ((e1[0]==edges_C[j][0] && e1[1]==edges_C[j][1]) || (e1[0]==edges_C[j][1] && e1[1]==edges_C[j][0]) ){
@@ -156,16 +135,6 @@ class ShapeMorph {
         edges_C[edges_C_size++] = e3;
       }
     }
-//    for(int i = 0; i<edges_C_size; i++){
-//      println("A");
-//      println(edges_C[i].A.x);
-//      println(edges_C[i].A.y);
-//      println(edges_C[i].A.z);
-//      println("B");
-//      println(edges_C[i].B.x);
-//      println(edges_C[i].B.y);
-//      println(edges_C[i].B.z);
-//    }
     return edges_C;
   }
   
@@ -276,7 +245,7 @@ class ShapeMorph {
           Point A1 = A.G[A.V[3*i]];
           Point A2 = A.G[A.V[3*i+1]];
           Point A3 = A.G[A.V[3*i+2]];
-          Point B1 = B.G[B.V[j]];
+          Point B1 = B.G[j];
           A1 = linearlyInterpolate(A1, B1, t);
           A2 = linearlyInterpolate(A2, B1, t);
           A3 = linearlyInterpolate(A3, B1, t);
@@ -290,7 +259,7 @@ class ShapeMorph {
           Point B1 = B.G[B.V[3*i]];
           Point B2 = B.G[B.V[3*i+1]];
           Point B3 = B.G[B.V[3*i+2]];
-          Point A1 = A.G[A.V[j]];
+          Point A1 = A.G[j];
           B1 = linearlyInterpolate(B1, A1, 1-t);
           B2 = linearlyInterpolate(B2, A1, 1-t);
           B3 = linearlyInterpolate(B3, A1, 1-t);
@@ -304,7 +273,6 @@ class ShapeMorph {
     for (int i = 0; i < this.edges_to_edges.length; i++) { // edges_A index
       for (int j = 0; j < this.edges_to_edges[i].length; j++) { // edges_B index
         if (edges_to_edges[i][j]) {
-          println("adding tri");
           Point A1 = A.G[edges_index_A[i][0]];
           Point A2 = A.G[edges_index_A[i][1]];
           Point B1 = B.G[edges_index_B[j][0]];
