@@ -19,7 +19,6 @@ class ShapeMorph {
   ShapeMorph(CornerTable A, CornerTable B) {
     this.A = A;
     this.B = B;
-    this.init();
   }
   
   /**
